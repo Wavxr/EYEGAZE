@@ -1,9 +1,9 @@
-import React from 'react'
+import LandingPage from "./pages/LandingPage";
 
-const App = () => {
+export default function App() {
   return (
-    <div className='text-3xl text-red-500'>TAILWINDDDDDD</div>
-  )
+    <div>
+      <LandingPage />
+    </div>
+  );
 }
-
-export default App
