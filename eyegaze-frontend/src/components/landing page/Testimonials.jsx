@@ -1,4 +1,3 @@
-// src/components/Testimonials.jsx
 import { motion } from "framer-motion";
 
 export default function Testimonials() {

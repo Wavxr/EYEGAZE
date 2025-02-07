@@ -1,4 +1,3 @@
-// src/components/PricingSection.jsx
 import { motion } from "framer-motion";
 
 export default function PricingSection() {
