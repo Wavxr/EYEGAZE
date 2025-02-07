@@ -1,13 +1,12 @@
-// src/pages/LandingPage.jsx
-import Navbar from "../components/Navbar";
-import HeroSection from "../components/HeroSection";
-import HowItWorks from "../components/HowItWorks";
-import FeaturesSection from "../components/FeaturesSection";
-import UseCases from "../components/UseCases";
-import PricingSection from "../components/PricingSection";
-import Testimonials from "../components/Testimonials";
-import FAQSection from "../components/FAQSection";
-import Footer from "../components/Footer";
+import Navbar from "../components/landing page/Navbar";
+import HeroSection from "../components/landing page/HeroSection";
+import HowItWorks from "../components/landing page/HowItWorks";
+import FeaturesSection from "../components/landing page/FeaturesSection";
+import UseCases from "../components/landing page/UseCases";
+import PricingSection from "../components/landing page/PricingSection";
+import Testimonials from "../components/landing page/Testimonials";
+import FAQSection from "../components/landing page/FAQSection";
+import Footer from "../components/landing page/Footer";
 
 export default function LandingPage() {
   return (

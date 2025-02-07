@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import { useState } from "react";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { motion } from "framer-motion";
