@@ -21,14 +21,14 @@ export default function Navbar() {
           <li>Testimonials</li>
         </ul>
 
-        {/* Buttons */}
-        <div className="hidden md:flex space-x-4">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-            Sign Up
-          </button>
-          <button className="px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-            Login
-          </button>
+        {/* Call-to-Action Button */}
+        <div className="hidden md:flex">
+          <a
+            href="/authenticate"
+            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-md hover:shadow-lg transition-transform hover:scale-105"
+          >
+            Try EYEGAZE Now
+          </a>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -55,13 +55,13 @@ export default function Navbar() {
             <li>Pricing</li>
             <li>Testimonials</li>
           </ul>
-          <div className="mt-4 space-y-2">
-            <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-              Sign Up
-            </button>
-            <button className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-              Login
-            </button>
+          <div className="mt-4">
+            <a
+              href="/authenticate"
+              className="w-full block px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-md text-center hover:shadow-lg transition-transform hover:scale-105"
+            >
+              Try EYEGAZE Now
+            </a>
           </div>
         </motion.div>
       )}
