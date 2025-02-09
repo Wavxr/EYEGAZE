@@ -1,0 +1,33 @@
+# Virtual environment
+venv/
+
+venv/
+__pycache__/
+*.env
+*.log
+screenshots/
+uploads/
+
+# PyCache files
+__pycache__/
+*.pyc
+*.pyo
+
+# AWS credentials and sensitive information
+*.env
+*.secret
+credentials.json
+
+# Temporary files and folders
+*.log
+screenshots/
+uploads/
+
+# IDE-specific files
+.vscode/
+.idea/
+*.iml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
