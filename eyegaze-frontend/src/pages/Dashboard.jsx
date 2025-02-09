@@ -97,7 +97,7 @@ const Dashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 lg:ml-72">
+      <main className="flex-1 lg:ml-72">
         {/* Header */}
         <header className="fixed top-0 left-0 w-full lg:w-[calc(100%-18rem)] lg:ml-72 bg-white border-b border-gray-300 z-40 shadow-md py-5">
           <div className="flex items-center justify-between px-6">
@@ -168,7 +168,7 @@ const Dashboard = () => {
         </header>
 
         {/* Page Content */}
-        <div className="pt-24">
+        <div className="pt-20">
           <Outlet />
         </div>
       </main>
