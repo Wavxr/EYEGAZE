@@ -13,6 +13,7 @@ import HelpSupport from './pages/HelpSupport';
 import Profile from './pages/Profile'; 
 import Settings from './pages/Settings';
 import ProtectedRoute from './middleware/ProtectedRoute';
+import SessionPage from './pages/SessionPage';
 
 const App = () => {
   return (
@@ -42,6 +43,9 @@ const App = () => {
             <Route path="profile" element={<Profile />} /> 
             <Route path="settings" element={<Settings />} />
           </Route>
+
+          <Route path="/session/:sessionId" element={<SessionPage />} />
+
         </Routes>
       </Router>
     </ThemeProvider>

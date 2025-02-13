@@ -1,19 +1,19 @@
-# src/controllers/html_serve_controller.py
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import Response
 from services.aws_service import download_from_s3
 
 router = APIRouter()
 
-@router.get("/get-html/{file_key}")
-async def get_html(file_key: str):
+@router.get("/get-html-raw/{file_key:path}")
+async def get_html_raw(file_key: str):
+    """
+    Returns the HTML file as text/html directly.
+    This way, an <iframe> can render it properly.
+    """
     try:
-        # Download the HTML file from S3
         html_content = download_from_s3(file_key)
-        
         if not html_content:
             raise HTTPException(status_code=404, detail="HTML file not found")
-        
-        return {"html": html_content.decode("utf-8")}
+        return Response(content=html_content, media_type="text/html")
     except Exception as e:
-        print(f"Error fetching HTML file: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

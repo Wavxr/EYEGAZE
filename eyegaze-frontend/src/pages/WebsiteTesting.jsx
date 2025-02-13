@@ -39,10 +39,6 @@ const WebsiteTesting = () => {
       return;
     }
   
-    console.log("Uploading file:", file);
-    console.log("File type:", file.type);
-    console.log("File size:", file.size);
-  
     setIsLoading(true);
   
     const formDataToSend = new FormData();
@@ -52,34 +48,28 @@ const WebsiteTesting = () => {
   
     try {
       const response = await axios.post("http://localhost:8000/api/upload-html", formDataToSend);
-      
-      console.log("Backend Response:", response.data); // Debugging log
   
-      if (!response.data.session_id) {
-        console.error("Error: session_id is missing from response.");
+      console.log("Backend Response:", response.data);
+  
+      if (!response.data.file_key) {
+        console.error("Error: file_key missing in response.");
         alert("Error generating session. Please try again.");
         return;
       }
   
-      setParticipantLink(`http://localhost:5173/session/${response.data.session_id}`);
-      alert("HTML file uploaded successfully!");
+      // Generate correct participant link
+      const participantURL = `http://localhost:5173/session/${response.data.session_id}?file_key=${encodeURIComponent(response.data.file_key)}`;
   
-      // Reset the form
-      setFormData({ title: "", guideline: "" });
-      setFile(null);
-      setPreviewUrl(null);
+      setParticipantLink(participantURL);
+      alert("HTML file uploaded successfully!");
     } catch (error) {
-      if (error.response) {
-        console.error("Server Response:", error.response);
-        alert(`Server Error: ${error.response.data.detail}`);
-      } else {
-        console.error("Error:", error);
-        alert(`Error: ${error.message}`);
-      }
+      console.error("Error:", error);
+      alert(`Error: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
+  
   
 
   return (

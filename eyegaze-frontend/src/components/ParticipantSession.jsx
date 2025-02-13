@@ -1,26 +1,37 @@
-// src/components/ParticipantSession.jsx
-import React, { useEffect, useRef } from "react";
-import axios from "axios";
+import React from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 
-const ParticipantSession = ({ sessionId }) => {
-  const containerRef = useRef(null);
+const ParticipantSession = () => {
+  const { sessionId } = useParams();
+  const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    console.log("Participant Session ID:", sessionId); // Debugging
-    const fetchHtml = async () => {
-      try {
-        const response = await axios.get(`/api/get-html/${sessionId}`);
-        console.log("Fetched HTML:", response.data.html); // Debugging
-        containerRef.current.innerHTML = response.data.html;
-      } catch (error) {
-        console.error("Error fetching HTML file:", error.message);
-      }
-    };
-    fetchHtml();
-  }, [sessionId]);
-  
+  const fileKey = searchParams.get("file_key");
+  if (!fileKey) {
+    // If there's no file key, just render an error message:
+    return <p>Error: No file key provided.</p>;
+  }
 
-  return <div ref={containerRef} style={{ width: "100%", height: "100vh" }} />;
+  // Construct the raw-HTML endpoint URL
+  const rawUrl = `http://localhost:8000/api/get-html-raw/${fileKey}`;
+
+  /**
+   * Render an <iframe> filling the screen,
+   * pointing directly to the raw HTML endpoint.
+   * The user sees the page EXACTLY as it was uploaded, with no Tailwind overwriting it.
+   */
+  return (
+    <iframe
+      title="Participant Session"
+      src={rawUrl}
+      style={{
+        width: "100vw",
+        height: "100vh",
+        border: "none",
+        margin: 0,
+        padding: 0,
+      }}
+    />
+  );
 };
 
 export default ParticipantSession;

@@ -9,16 +9,12 @@ from controllers.gaze_data_controller import router as gaze_data_router
 # Load environment variables from .env file
 load_dotenv()
 
-# Debugging: Print credentials to verify they are loaded
-print(f"Main.py AWS_ACCESS_KEY_ID: {os.getenv('AWS_ACCESS_KEY_ID')}")
-print(f"main.py AWS_SECRET_ACCESS_KEY: {'Loaded' if os.getenv('AWS_SECRET_ACCESS_KEY') else 'Not Found'}")
-
 app = FastAPI()
 
 # Define allowed origins for CORS
 origins = [
-    "http://localhost:5173",  # Local frontend URL (if using Vite)
-    "https://your-frontend-url.com",  # Live frontend URL
+    "http://localhost:5173", 
+    "https://your-frontend-url.com", 
 ]
 
 # Add CORS middleware
