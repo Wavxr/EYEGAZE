@@ -130,3 +130,4 @@ dist
 .pnp.*
 eyegaze-backend/src/config/eyegaze-5a6f0-firebase-adminsdk-fbsvc-9432977af2.json
 "eyegaze-backend/src/config/*.json" 
+"eyegaze-backend/src/config/*.json" 
