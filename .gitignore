@@ -128,3 +128,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+eyegaze-backend/src/config/eyegaze-5a6f0-firebase-adminsdk-fbsvc-9432977af2.json
