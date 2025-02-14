@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
-from services.aws_service import download_from_s3
+from ..services.aws_service import download_from_s3
 
 router = APIRouter()
 

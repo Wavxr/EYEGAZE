@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Participant Session</title>
+  <!-- Include required scripts -->
+  <script src="https://www.lactame.com/lib/ml/6.0.0/ml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+  <link rel="stylesheet" href="https://eyegestures.com/eyegestures.css">
+  <script src="https://eyegestures.com/eyegestures.js"></script>
+  <style>
+    /* Optional: Style for the iframe */
+    iframe {
+      width: 100vw; 
+      height: 100vh;
+      border: none;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Disable scrolling on the entire page */
+    }
+    /* Optional: Cursor position display */
+    #cursor-position {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-family: Arial, sans-serif;
+      z-index: 9999;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- EyeGestures Required Elements -->
+  <video id="video" width="640" height="480" autoplay style="display: none;"></video>
+  <div id="status" style="display: none;">Initializing...</div>
+  <div id="error" style="display: none;"></div>
+  <!-- Display cursor position -->
+  <div id="cursor-position">Cursor Position: (X: -, Y: -)</div>
+  <!-- Embed the session content -->
+  <iframe id="session-iframe" title="Participant Session" style="width: 100vw; height: 100vh; border: none; margin: 0; padding: 0;"></iframe>
+  <script>
+    // Extract the 'file_key' parameter from the URL
+    const params = new URLSearchParams(window.location.search);
+    const fileKey = params.get("file_key");
+    const sessionId = params.get("sessionId");
+
+    if (!fileKey) {
+      console.error("Error: No file_key provided.");
+      document.body.innerHTML = "<p>Error: No file_key provided.</p>";
+    } else {
+      // Set the iframe's src dynamically
+      const iframe = document.getElementById("session-iframe");
+      iframe.src = `http://localhost:8000/api/get-html-raw/${fileKey}`;
+    }
+
+    // Initialize EyeGesturesLite
+    document.addEventListener("DOMContentLoaded", () => {
+      const gestures = new EyeGestures("video", (point, calibration) => {
+        const x = point[0]; // X coordinate of the cursor
+        const y = point[1]; // Y coordinate of the cursor
+        // Update the displayed cursor position
+        document.getElementById("cursor-position").innerText = `Cursor Position: (X: ${x.toFixed(2)}, Y: ${y.toFixed(2)})`;
+        console.log(`Cursor Position: X=${x.toFixed(2)}, Y=${y.toFixed(2)}`);
+        console.log(`Calibration: ${calibration ? "Complete" : "Ongoing"}`);
+      });
+      // Start the eye-tracking process
+      gestures.start();
+    });
+  </script>
+</body>
+</html>

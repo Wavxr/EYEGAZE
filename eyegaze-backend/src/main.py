@@ -2,9 +2,9 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from controllers.html_upload_controller import router as html_upload_router
-from controllers.html_serve_controller import router as html_serve_router
-from controllers.gaze_data_controller import router as gaze_data_router
+from .controllers.html_upload_controller import router as html_upload_router
+from .controllers.html_serve_controller import router as html_serve_router
+from .controllers.gaze_data_controller import router as gaze_data_router
 
 # Load environment variables from .env file
 load_dotenv()

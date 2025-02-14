@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Import Navigate
 import { ThemeProvider } from './context/ThemeContext';
 import LandingPage from './pages/LandingPage';
 import AuthenticatePage from './pages/AuthenticatePage';
@@ -23,7 +23,6 @@ const App = () => {
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/authenticate" element={<AuthenticatePage />} />
-
           {/* Protected Route for Dashboard */}
           <Route
             path="/dashboard"
@@ -44,8 +43,10 @@ const App = () => {
             <Route path="settings" element={<Settings />} />
           </Route>
 
-          <Route path="/session/:sessionId" element={<SessionPage />} />
-
+          <Route 
+            path="/session/:sessionId" 
+            element={<SessionPage />} 
+          />
         </Routes>
       </Router>
     </ThemeProvider>

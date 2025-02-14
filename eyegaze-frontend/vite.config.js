@@ -8,4 +8,9 @@ export default defineConfig({
     tailwindcss(),
     react()
   ],
+  server: {
+    fs: {
+      strict: false, // Allow serving files outside the project root
+    },
+  },
 })

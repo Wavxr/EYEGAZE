@@ -1,8 +1,8 @@
 # eyegaze-backend/src/controllers/html_upload_controller.py
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from uuid import uuid4
-from services.aws_service import upload_to_s3
-from services.firebase_service import save_website_data
+from ..services.aws_service import upload_to_s3
+from ..services.firebase_service import save_website_data
 
 router = APIRouter()
 

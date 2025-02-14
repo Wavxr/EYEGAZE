@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from firebase_admin import credentials, firestore, initialize_app
 
-
 load_dotenv()
 
 private_key = os.getenv("FIREBASE_PRIVATE_KEY")
