@@ -1,5 +1,7 @@
+// eyegaze-frontend/src/pages/WebsiteTesting.jsx
 import React, { useState } from "react";
 import axios from "axios";
+import { getAuth } from "firebase/auth"; // Import Firebase Auth
 
 const WebsiteTesting = () => {
   const [formData, setFormData] = useState({
@@ -45,6 +47,18 @@ const WebsiteTesting = () => {
     formDataToSend.append("title", formData.title);
     formDataToSend.append("guideline", formData.guideline);
     formDataToSend.append("file", file);
+
+    // Retrieve user details from Firebase Auth
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      formDataToSend.append("owner_id", user.uid);
+      formDataToSend.append("owner_name", user.displayName || "Anonymous");
+    } else {
+      alert("User not authenticated.");
+      setIsLoading(false);
+      return;
+    }
   
     try {
       const response = await axios.post("http://localhost:8000/api/upload-html", formDataToSend);
@@ -70,8 +84,6 @@ const WebsiteTesting = () => {
     }
   };
   
-  
-
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center p-6">
       <header className="w-full max-w-4xl text-center py-6">
