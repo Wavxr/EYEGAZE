@@ -32,7 +32,7 @@ async def save_participant_data(data: dict):
             "gaze_points": gaze_points
         }
         
-        # Save participant data to Firebase
+        # Save participant session data to Firebase in a separate top-level collection
         participant_id = save_session_participant(website_id, participant_data)
         
         return {

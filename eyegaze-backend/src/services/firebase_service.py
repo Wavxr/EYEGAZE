@@ -9,7 +9,6 @@ private_key = os.getenv("FIREBASE_PRIVATE_KEY")
 if private_key is None:
     raise ValueError("FIREBASE_PRIVATE_KEY is not set in the environment variables")
 
-
 # Load Firebase credentials from environment variables
 cred = credentials.Certificate({
     "type": "service_account",
@@ -48,40 +47,31 @@ def save_website_data(owner_id: str, owner_name: str, title: str, guideline: str
 
 def save_session_participant(website_id: str, participant_data: dict):
     """
-    Save participant session data to Firebase.
-    
+    Save participant session data to Firebase in a separate top-level collection.
+
     Args:
-        website_id: ID of the website document
+        website_id: ID of the website document to reference.
         participant_data: Dictionary containing:
-            - name: Participant's name
-            - feedback: Rating (1-5)
-            - session_start_time: Session start timestamp
-            - session_end_time: Session end timestamp
-            - gaze_points: List of gaze points with timestamps
-    """
-    # Create a new participant document in the website's participants subcollection
-    participant_doc = db.collection('websites').document(website_id).collection('participants').document()
+            - name: Participant's name.
+            - feedback: Rating (1-5).
+            - session_start_time: Session start timestamp.
+            - session_end_time: Session end timestamp.
+            - gaze_points: List of gaze points with timestamps.
     
-    # Save participant metadata
-    participant_doc.set({
+    The gaze points are stored as a single array object within the participant document.
+    """
+    # Create a new document in the participant_sessions collection
+    session_doc = db.collection('participant_sessions').document()
+
+    # Save the session data along with the reference to the website ID
+    session_doc.set({
+        "website_id": website_id,
         "name": participant_data.get("name"),
         "feedback": participant_data.get("feedback"),
         "session_start_time": participant_data.get("session_start_time"),
         "session_end_time": participant_data.get("session_end_time"),
+        "gaze_points": participant_data.get("gaze_points"),
         "createdAt": firestore.SERVER_TIMESTAMP
     })
     
-    # Save gaze points in a subcollection
-    gaze_points = participant_data.get("gaze_points", [])
-    gaze_batch = db.batch()
-    for point in gaze_points:
-        point_doc = participant_doc.collection("gazePoints").document()
-        gaze_batch.set(point_doc, {
-            "x": point.get("x"),
-            "y": point.get("y"),
-            "timestamp": point.get("timestamp")
-        })
-    
-    # Commit all gaze points in a single batch
-    gaze_batch.commit()
-    return participant_doc.id
+    return session_doc.id
