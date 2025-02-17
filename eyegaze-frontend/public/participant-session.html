@@ -4,26 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Participant Session</title>
-  <!-- Include required scripts -->
-  <script src="https://www.lactame.com/lib/ml/6.0.0/ml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
-  <link rel="stylesheet" href="https://eyegestures.com/eyegestures.css">
-  <script src="https://eyegestures.com/eyegestures.js"></script>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <script src="https://api.gazerecorder.com/GazeCloudAPI.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/heatmap.js/2.0.5/heatmap.min.js"></script>
+
   <style>
-    /* Optional: Style for the iframe */
-    iframe {
-      width: 100vw; 
-      height: 100vh;
-      border: none;
-      margin: 0;
-      padding: 0;
-    }
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden; /* Disable scrolling on the entire page */
+      overflow: auto;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background-color: #1a1a1a;
     }
-    /* Optional: Cursor position display */
+
+    #image-container {
+      position: relative;
+      width: 100vw;
+    }
+
+    #website-image {
+      width: 100%;
+      display: block;
+    }
+
     #cursor-position {
       position: fixed;
       top: 10px;
@@ -32,48 +39,250 @@
       z-index: 9999;
       color: #fff;
       background: rgba(0, 0, 0, 0.7);
-      padding: 10px;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    #loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-family: Arial, sans-serif;
+      cursor: pointer;
+      z-index: 10000;
+    }
+
+    #end-session {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: red;
+      color: white;
+      font-size: 16px;
+      padding: 10px 20px;
       border-radius: 5px;
+      cursor: pointer;
+      z-index: 9999;
+      display: none;
+    }
+
+    #feedback-form {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 10001;
+      display: none;
+      width: 300px;
+    }
+
+    #feedback-form input,
+    #feedback-form select {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    #feedback-form button {
+      width: 100%;
+      padding: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #feedback-form button:hover {
+      background: #45a049;
+    }
+
+    #heatmap-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <!-- EyeGestures Required Elements -->
-  <video id="video" width="640" height="480" autoplay style="display: none;"></video>
-  <div id="status" style="display: none;">Initializing...</div>
-  <div id="error" style="display: none;"></div>
-  <!-- Display cursor position -->
-  <div id="cursor-position">Cursor Position: (X: -, Y: -)</div>
-  <!-- Embed the session content -->
-  <iframe id="session-iframe" title="Participant Session" style="width: 100vw; height: 100vh; border: none; margin: 0; padding: 0;"></iframe>
+  <div id="cursor-position">
+    <p><strong>Gaze Position:</strong></p>
+    <p>X: <span id="cursor-x">-</span></p>
+    <p>Y: <span id="cursor-y">-</span></p>
+  </div>
+
+  <div id="loading">Loading website image...</div>
+  <div id="overlay">Click to Start Eye Tracking</div>
+  <button id="end-session">End Session</button>
+
+  <div id="feedback-form">
+    <h2>Session Feedback</h2>
+    <input type="text" id="participant-name" placeholder="Your Name" required>
+    <select id="feedback-rating" required>
+      <option value="">Select Rating (1-5)</option>
+      <option value="1">1 - Poor</option>
+      <option value="2">2 - Fair</option>
+      <option value="3">3 - Good</option>
+      <option value="4">4 - Very Good</option>
+      <option value="5">5 - Excellent</option>
+    </select>
+    <button onclick="submitFeedback()">Submit Feedback</button>
+  </div>
+
+  <div id="image-container">
+    <img id="website-image" alt="Website Screenshot" />
+    <div id="heatmap-container"></div>
+  </div>
+
   <script>
-    // Extract the 'file_key' parameter from the URL
+    let gazePoints = [];
+    let sessionStartTime = null;
+    let sessionEndTime = null;
     const params = new URLSearchParams(window.location.search);
     const fileKey = params.get("file_key");
-    const sessionId = params.get("sessionId");
 
     if (!fileKey) {
-      console.error("Error: No file_key provided.");
-      document.body.innerHTML = "<p>Error: No file_key provided.</p>";
+      document.body.innerHTML = "<p style='color: white; text-align: center;'>Error: No file_key provided.</p>";
     } else {
-      // Set the iframe's src dynamically
-      const iframe = document.getElementById("session-iframe");
-      iframe.src = `http://localhost:8000/api/get-html-raw/${fileKey}`;
+      document.getElementById("loading").style.display = "block";
+      const img = document.getElementById("website-image");
+      img.src = `http://localhost:8000/get-image/${fileKey}`;
+
+      img.onload = () => {
+        document.getElementById("loading").style.display = "none";
+      };
+
+      img.onerror = () => {
+        document.getElementById("loading").style.display = "none";
+        document.body.innerHTML = "<p style='color: white; text-align: center;'>Error: Failed to load the image.</p>";
+      };
     }
 
-    // Initialize EyeGesturesLite
-    document.addEventListener("DOMContentLoaded", () => {
-      const gestures = new EyeGestures("video", (point, calibration) => {
-        const x = point[0]; // X coordinate of the cursor
-        const y = point[1]; // Y coordinate of the cursor
-        // Update the displayed cursor position
-        document.getElementById("cursor-position").innerText = `Cursor Position: (X: ${x.toFixed(2)}, Y: ${y.toFixed(2)})`;
-        console.log(`Cursor Position: X=${x.toFixed(2)}, Y=${y.toFixed(2)}`);
-        console.log(`Calibration: ${calibration ? "Complete" : "Ongoing"}`);
-      });
-      // Start the eye-tracking process
-      gestures.start();
+    // Start Eye Tracking on Click
+    document.getElementById("overlay").addEventListener("click", function () {
+      GazeCloudAPI.StartEyeTracking();
+      GazeCloudAPI.UseClickRecalibration = true;
+      this.style.display = "none";
+      document.getElementById("end-session").style.display = "block";
     });
+
+    // End Session Handler
+    document.getElementById("end-session").addEventListener("click", function() {
+      sessionEndTime = Date.now();
+      GazeCloudAPI.StopEyeTracking();
+      document.getElementById("feedback-form").style.display = "block";
+    });
+
+    async function submitFeedback() {
+      const name = document.getElementById("participant-name").value;
+      const feedback = document.getElementById("feedback-rating").value;
+
+      if (!name || !feedback) {
+        alert("Please fill in all fields");
+        return;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const fileKey = urlParams.get('file_key');
+      const sessionId = window.location.pathname.split('/').pop();
+
+      const participantData = {
+        name: name,
+        feedback: parseInt(feedback),
+        session_start_time: sessionStartTime,
+        session_end_time: sessionEndTime,
+        gaze_points: gazePoints,
+        file_key: fileKey,
+        session_id: sessionId
+      };
+
+      try {
+        const response = await fetch('http://localhost:8000/save-participant-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(participantData)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to save participant data');
+        }
+
+        alert('Thank you for your feedback! Session completed.');
+        window.close();
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error saving feedback. Please try again.');
+      }
+    }
+
+    GazeCloudAPI.OnResult = function (GazeData) {
+      if (GazeData.state !== 0) return;
+
+      if (!sessionStartTime) {
+        sessionStartTime = Date.now();
+      }
+
+      const docX = GazeData.docX;
+      const docY = GazeData.docY;
+
+      // Store gaze point with timestamp
+      gazePoints.push({
+        x: docX,
+        y: docY,
+        timestamp: Date.now()
+      });
+
+      // Update cursor position display
+      const container = document.getElementById("image-container");
+      const rect = container.getBoundingClientRect();
+
+      // Calculate gaze position relative to the container
+      const gazeX = GazeData.docX - (rect.left + window.scrollX);
+      const gazeY = GazeData.docY - (rect.top + window.scrollY);
+
+      document.getElementById("cursor-x").textContent = Math.round(gazeX);
+      document.getElementById("cursor-y").textContent = Math.round(gazeY);
+    };
+
+    GazeCloudAPI.OnCalibrationComplete = function () {
+      document.getElementById("overlay").style.display = "none";
+    };
   </script>
 </body>
 </html>

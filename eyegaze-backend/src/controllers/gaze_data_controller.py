@@ -4,11 +4,11 @@ from ..services.firebase_service import save_session_participant
 
 router = APIRouter()
 
-@router.post("/upload-session-data")
-async def upload_session_data(data: dict):
+@router.post("/save-participant-data")
+async def save_participant_data(data: dict):
     try:
         # Extract required fields from request data
-        session_id = data.get("session_id")
+        website_id = data.get("session_id")  # session_id is actually website_id
         participant_name = data.get("name")
         feedback = data.get("feedback")
         session_start_time = data.get("session_start_time")
@@ -16,8 +16,12 @@ async def upload_session_data(data: dict):
         gaze_points = data.get("gaze_points")
         
         # Validate required fields
-        if not all([session_id, participant_name, feedback, session_start_time, session_end_time, gaze_points]):
+        if not all([website_id, participant_name, feedback, session_start_time, session_end_time, gaze_points]):
             raise HTTPException(status_code=400, detail="Missing required fields")
+        
+        # Validate feedback range
+        if not isinstance(feedback, int) or feedback < 1 or feedback > 5:
+            raise HTTPException(status_code=400, detail="Feedback must be an integer between 1 and 5")
         
         # Prepare participant data for Firebase
         participant_data = {
@@ -29,7 +33,7 @@ async def upload_session_data(data: dict):
         }
         
         # Save participant data to Firebase
-        participant_id = save_session_participant(session_id, participant_data)
+        participant_id = save_session_participant(website_id, participant_data)
         
         return {
             "message": "Session data uploaded successfully",

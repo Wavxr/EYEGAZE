@@ -28,6 +28,9 @@ initialize_app(cred)
 db = firestore.client()
 
 def save_website_data(owner_id: str, owner_name: str, title: str, guideline: str, s3_file_key: str, participant_link: str):
+    """
+    Save website testing data to Firebase.
+    """
     website_data = {
         "ownerId": owner_id,
         "ownerName": owner_name,
@@ -37,39 +40,48 @@ def save_website_data(owner_id: str, owner_name: str, title: str, guideline: str
         "participantLink": participant_link,
         "createdAt": firestore.SERVER_TIMESTAMP
     }
+    
+    # Create a new document in the websites collection
     doc_ref = db.collection('websites').document()
     doc_ref.set(website_data)
     return doc_ref.id
 
-def save_session_participant(session_id: str, participant_data: dict):
+def save_session_participant(website_id: str, participant_data: dict):
     """
-    Save participant session data under sessions/{session_id}/participants.
-    The participant_data dictionary should include:
-      - name: string
-      - feedback: number (1-5)
-      - session_start_time: timestamp (number)
-      - session_end_time: timestamp (number)
-      - gaze_points: list of { x: number, y: number, timestamp: number }
+    Save participant session data to Firebase.
+    
+    Args:
+        website_id: ID of the website document
+        participant_data: Dictionary containing:
+            - name: Participant's name
+            - feedback: Rating (1-5)
+            - session_start_time: Session start timestamp
+            - session_end_time: Session end timestamp
+            - gaze_points: List of gaze points with timestamps
     """
-    session_ref = db.collection('sessions').document(session_id)
-    participant_doc = session_ref.collection('participants').document()  # auto-generated ID
-
-    # Prepare participant document payload.
-    participant_payload = {
+    # Create a new participant document in the website's participants subcollection
+    participant_doc = db.collection('websites').document(website_id).collection('participants').document()
+    
+    # Save participant metadata
+    participant_doc.set({
         "name": participant_data.get("name"),
         "feedback": participant_data.get("feedback"),
         "session_start_time": participant_data.get("session_start_time"),
         "session_end_time": participant_data.get("session_end_time"),
         "createdAt": firestore.SERVER_TIMESTAMP
-    }
-    participant_doc.set(participant_payload)
-
-    # Save each gaze point as a document in the "gazeData" subcollection.
+    })
+    
+    # Save gaze points in a subcollection
     gaze_points = participant_data.get("gaze_points", [])
+    gaze_batch = db.batch()
     for point in gaze_points:
-        participant_doc.collection("gazeData").add({
+        point_doc = participant_doc.collection("gazePoints").document()
+        gaze_batch.set(point_doc, {
             "x": point.get("x"),
             "y": point.get("y"),
             "timestamp": point.get("timestamp")
         })
+    
+    # Commit all gaze points in a single batch
+    gaze_batch.commit()
     return participant_doc.id

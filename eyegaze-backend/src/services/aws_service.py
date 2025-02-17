@@ -21,7 +21,7 @@ s3_client = boto3.client(
     region_name=AWS_REGION,
 )
 
-def upload_to_s3(data, key: str, content_type: str = "application/octet-stream"):
+def upload_to_s3(data, key: str, content_type: str = "image/jpeg"):
     """
     Upload data (bytes or str) to S3. Returns the public URL.
     """

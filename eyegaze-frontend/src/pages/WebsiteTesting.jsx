@@ -1,7 +1,7 @@
 // eyegaze-frontend/src/pages/WebsiteTesting.jsx
 import React, { useState } from "react";
 import axios from "axios";
-import { getAuth } from "firebase/auth"; // Import Firebase Auth
+import { getAuth } from "firebase/auth";
 
 const WebsiteTesting = () => {
   const [formData, setFormData] = useState({
@@ -23,8 +23,8 @@ const WebsiteTesting = () => {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile && !selectedFile.type.includes("text/html")) {
-      alert("Please upload a valid HTML file.");
+    if (selectedFile && !selectedFile.type.includes("image/")) {
+      alert("Please upload a valid image file (PNG, JPEG, etc.).");
       return;
     }
     setFile(selectedFile);
@@ -37,7 +37,7 @@ const WebsiteTesting = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
-      alert("Please upload an HTML file.");
+      alert("Please upload an image file.");
       return;
     }
   
@@ -61,7 +61,7 @@ const WebsiteTesting = () => {
     }
   
     try {
-      const response = await axios.post("http://localhost:8000/api/upload-html", formDataToSend);
+      const response = await axios.post("http://localhost:8000/upload-image", formDataToSend);
   
       console.log("Backend Response:", response.data);
   
@@ -74,8 +74,26 @@ const WebsiteTesting = () => {
       // Generate correct participant link
       const participantURL = `http://localhost:5173/session/${response.data.session_id}?file_key=${encodeURIComponent(response.data.file_key)}`;
   
+      // Save website data to Firebase
+      try {
+        const websiteData = {
+          owner_id: user.uid,
+          owner_name: user.displayName || "Anonymous",
+          title: formData.title,
+          guideline: formData.guideline,
+          s3_file_key: response.data.file_key,
+          participant_link: participantURL
+        };
+
+        await axios.post("http://localhost:8000/save-website", websiteData);
+      } catch (error) {
+        console.error("Error saving to Firebase:", error);
+        alert("Website uploaded but there was an error saving metadata. Please try again.");
+        return;
+      }
+  
       setParticipantLink(participantURL);
-      alert("HTML file uploaded successfully!");
+      alert("Image uploaded and metadata saved successfully!");
     } catch (error) {
       console.error("Error:", error);
       alert(`Error: ${error.message}`);
@@ -88,7 +106,7 @@ const WebsiteTesting = () => {
     <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center p-6">
       <header className="w-full max-w-4xl text-center py-6">
         <h1 className="text-4xl font-bold text-blue-600">EYEGAZE Website Testing</h1>
-        <p className="text-lg text-gray-600 mt-2">Upload an HTML file and start gaze tracking</p>
+        <p className="text-lg text-gray-600 mt-2">Upload a website screenshot and start gaze tracking</p>
       </header>
       <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -99,50 +117,43 @@ const WebsiteTesting = () => {
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              placeholder="Enter website title"
-              className="w-full p-3 rounded-lg bg-gray-100 border border-gray-300"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
           <div>
-            <label className="block text-lg font-medium mb-2 text-gray-700">Testing Guideline</label>
+            <label className="block text-lg font-medium mb-2 text-gray-700">Testing Guidelines</label>
             <textarea
               name="guideline"
               value={formData.guideline}
               onChange={handleInputChange}
-              rows="4"
-              placeholder="e.g., Improve CTA clicks"
-              className="w-full p-3 rounded-lg bg-gray-100 border border-gray-300"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 h-32"
               required
-            ></textarea>
+            />
           </div>
           <div>
-            <label className="block text-lg font-medium mb-2 text-gray-700">Upload HTML File</label>
+            <label className="block text-lg font-medium mb-2 text-gray-700">Upload Website Screenshot</label>
             <input
               type="file"
-              accept=".html"
               onChange={handleFileChange}
-              className="w-full p-3 rounded-lg bg-gray-100 border border-gray-300"
+              accept="image/*"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
           {previewUrl && (
             <div className="mt-4">
-              <h3 className="text-lg font-medium mb-2">Preview:</h3>
-              <iframe
-                src={previewUrl}
-                title="Uploaded HTML Preview"
-                style={{ width: "100%", height: "300px", border: "1px solid #ccc" }}
-                sandbox="allow-scripts allow-same-origin"
-              ></iframe>
+              <p className="text-lg font-medium mb-2 text-gray-700">Preview:</p>
+              <img src={previewUrl} alt="Preview" className="max-w-full h-auto rounded-lg shadow-lg" />
             </div>
           )}
           <button
             type="submit"
-            className="w-full py-3 px-6 bg-blue-600 rounded-lg text-lg font-semibold text-white hover:bg-blue-700"
             disabled={isLoading}
+            className={`w-full py-3 px-6 text-white rounded-lg text-lg font-semibold 
+              ${isLoading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
           >
-            {isLoading ? "Uploading..." : "Upload and Generate Link"}
+            {isLoading ? "Uploading..." : "Upload Website Screenshot"}
           </button>
         </form>
         {participantLink && (
