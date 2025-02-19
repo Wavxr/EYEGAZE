@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
+import { motion } from "framer-motion";
 
 const WebsiteTesting = () => {
   const [formData, setFormData] = useState({
@@ -103,68 +104,119 @@ const WebsiteTesting = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center p-6">
-      <header className="w-full max-w-4xl text-center py-6">
-        <h1 className="text-4xl font-bold text-blue-600">EYEGAZE Website Testing</h1>
-        <p className="text-lg text-gray-600 mt-2">Upload a website screenshot and start gaze tracking</p>
-      </header>
-      <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Upload Form */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="lg:col-span-2 backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
+      >
+        <h3 className="text-xl font-semibold text-white mb-6">Create New Test</h3>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-lg font-medium mb-2 text-gray-700">Website Title</label>
+            <label className="block text-sm font-medium mb-2 text-gray-300">Website Title</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400/50"
               required
             />
           </div>
+          
           <div>
-            <label className="block text-lg font-medium mb-2 text-gray-700">Testing Guidelines</label>
+            <label className="block text-sm font-medium mb-2 text-gray-300">Testing Guidelines</label>
             <textarea
               name="guideline"
               value={formData.guideline}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 h-32"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400/50 h-32 resize-none"
               required
             />
           </div>
+
           <div>
-            <label className="block text-lg font-medium mb-2 text-gray-700">Upload Website Screenshot</label>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              accept="image/*"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          {previewUrl && (
-            <div className="mt-4">
-              <p className="text-lg font-medium mb-2 text-gray-700">Preview:</p>
-              <img src={previewUrl} alt="Preview" className="max-w-full h-auto rounded-lg shadow-lg" />
+            <label className="block text-sm font-medium mb-2 text-gray-300">Upload Website Screenshot</label>
+            <div className="relative">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+                id="file-upload"
+                required
+              />
+              <label
+                htmlFor="file-upload"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-gray-300 hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Choose File
+              </label>
             </div>
-          )}
+          </div>
+
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 px-6 text-white rounded-lg text-lg font-semibold 
-              ${isLoading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+            className={`w-full py-3 px-6 rounded-xl text-black font-semibold transition-all duration-200 
+              ${isLoading 
+                ? 'bg-gray-400' 
+                : 'bg-gradient-to-r from-emerald-400 to-cyan-400 hover:opacity-90'
+              }`}
           >
-            {isLoading ? "Uploading..." : "Upload Website Screenshot"}
+            {isLoading ? "Uploading..." : "Create Test Session"}
           </button>
         </form>
-        {participantLink && (
-          <div className="mt-4 text-center">
-            <p className="text-lg text-green-600">Participant Link:</p>
-            <a href={participantLink} target="_blank" rel="noopener noreferrer" className="text-blue-600">
-              {participantLink}
-            </a>
+      </motion.div>
+
+      {/* Preview Section */}
+      {previewUrl && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="lg:col-span-2 backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
+        >
+          <h3 className="text-xl font-semibold text-white mb-6">Preview</h3>
+          <div className="rounded-xl overflow-hidden">
+            <img src={previewUrl} alt="Preview" className="w-full h-auto" />
           </div>
-        )}
-      </div>
+        </motion.div>
+      )}
+
+      {/* Participant Link Section */}
+      {participantLink && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="lg:col-span-2 backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
+        >
+          <h3 className="text-xl font-semibold text-white mb-6">Share Test Session</h3>
+          <div className="bg-white/5 rounded-xl p-4">
+            <p className="text-gray-300 mb-2">Participant Link:</p>
+            <div className="flex items-center space-x-4">
+              <input
+                type="text"
+                value={participantLink}
+                readOnly
+                className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white"
+              />
+              <button
+                onClick={() => navigator.clipboard.writeText(participantLink)}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 };

@@ -1,87 +1,101 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 const Overview = () => {
-  // Example data for testing
-  const data = {
-    uploadedWebsite: {
-      url: "https://example.com",
-      screenshotUrl: "https://via.placeholder.com/300x200?text=Website+Screenshot",
-      uploadedAt: "2023-10-01T12:00:00Z",
-    },
-    participantLink: "https://eyegaze.com/session/abc123",
-    guideline: "Increase bookings and improve user navigation experience.",
-    insights: [
-      { title: "Attention Span", value: "45 seconds" },
-      { title: "Hero Section Engagement", value: "60%" },
-      { title: "CTA Button Visibility", value: "Low visibility" },
-      { title: "Page Load Time", value: "3.2 seconds" },
-      { title: "Bounce Rate", value: "47%" },
-    ],
-  };
-
-  const placeholderImage =
-    "https://via.placeholder.com/300x200?text=No+Image+Uploaded";
-
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800 p-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Left Section: Image + Participant Link */}
-        <div className="col-span-1 bg-white p-6 rounded-2xl shadow-lg flex flex-col items-center">
-          <img
-            src={data.uploadedWebsite?.screenshotUrl || placeholderImage}
-            alt="Uploaded Website"
-            className="w-full max-w-sm h-auto rounded-lg object-cover mb-6"
-          />
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Analytics Overview Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
+      >
+        <h3 className="text-xl font-semibold text-white mb-6">Analytics Overview</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white/5 rounded-xl p-4">
+            <p className="text-sm text-gray-400">Total Sessions</p>
+            <p className="text-2xl font-bold text-emerald-400">24</p>
+          </div>
+          <div className="bg-white/5 rounded-xl p-4">
+            <p className="text-sm text-gray-400">Active Tests</p>
+            <p className="text-2xl font-bold text-cyan-400">3</p>
+          </div>
+          <div className="bg-white/5 rounded-xl p-4">
+            <p className="text-sm text-gray-400">Total Views</p>
+            <p className="text-2xl font-bold text-purple-400">142</p>
+          </div>
+          <div className="bg-white/5 rounded-xl p-4">
+            <p className="text-sm text-gray-400">Avg. Duration</p>
+            <p className="text-2xl font-bold text-yellow-400">2.5m</p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Recent Activity Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
+      >
+        <h3 className="text-xl font-semibold text-white mb-6">Recent Activity</h3>
+        <div className="space-y-4">
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="bg-white/5 rounded-xl p-4 flex items-center space-x-4">
+              <div className="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center">
+                <span className="text-emerald-400">👁️</span>
+              </div>
+              <div>
+                <p className="text-white">Website Test #{item}</p>
+                <p className="text-sm text-gray-400">2 hours ago</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Heatmap Summary */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="lg:col-span-2 backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
+      >
+        <h3 className="text-xl font-semibold text-white mb-6">Latest Heatmap Analysis</h3>
+        <div className="aspect-video rounded-xl bg-white/5 flex items-center justify-center">
           <div className="text-center">
-            <h2 className="text-lg font-semibold">Participant Link</h2>
-            <p className="text-sm text-gray-600">
-              <a
-                href={data.participantLink || "#"}
-                className="text-blue-600 underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {data.participantLink || "No link available yet"}
-              </a>
-            </p>
+            <p className="text-gray-400 mb-2">Select a website to view heatmap</p>
+            <button className="px-4 py-2 bg-gradient-to-r from-emerald-400 to-cyan-400 text-black font-semibold rounded-lg hover:opacity-90 transition">
+              View Heatmaps
+            </button>
           </div>
         </div>
+      </motion.div>
 
-        {/* Right Section: Guideline and Insights */}
-        <div className="col-span-2 flex flex-col gap-8">
-          {/* Guideline */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Guideline</h2>
-            <p className="text-gray-600 text-sm">
-              {data.guideline || "No guideline defined yet"}
-            </p>
-          </div>
-
-          {/* Insights */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Insights</h2>
-            <ul className="space-y-3">
-              {data.insights && data.insights.length > 0 ? (
-                data.insights.map((insight, index) => (
-                  <li
-                    key={index}
-                    className="flex justify-between items-center border-b last:border-b-0 pb-2"
-                  >
-                    <span className="font-medium text-gray-800">
-                      {insight.title}
-                    </span>
-                    <span className="text-gray-600 text-sm">
-                      {insight.value}
-                    </span>
-                  </li>
-                ))
-              ) : (
-                <p className="text-gray-600">No insights available yet.</p>
-              )}
-            </ul>
-          </div>
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="lg:col-span-2 backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
+      >
+        <h3 className="text-xl font-semibold text-white mb-6">Quick Actions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button className="p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors text-left">
+            <p className="text-white font-medium">New Test</p>
+            <p className="text-sm text-gray-400">Create a new eye tracking test</p>
+          </button>
+          <button className="p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors text-left">
+            <p className="text-white font-medium">View Reports</p>
+            <p className="text-sm text-gray-400">Access detailed analytics</p>
+          </button>
+          <button className="p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors text-left">
+            <p className="text-white font-medium">Share Results</p>
+            <p className="text-sm text-gray-400">Export and share insights</p>
+          </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

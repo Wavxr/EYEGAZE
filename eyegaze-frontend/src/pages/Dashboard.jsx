@@ -42,17 +42,19 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen flex bg-gray-100 text-gray-900">
+    <div className="min-h-screen flex bg-gradient-to-br from-gray-900 via-gray-800 to-emerald-900">
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-72 bg-gray-900/80 backdrop-blur-lg border-r border-gray-700/50 transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-full w-72 backdrop-blur-xl bg-white/5 border-r border-white/10 transform transition-transform duration-300 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0 lg:w-72 z-50`}
       >
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-gray-700/50">
+        <div className="flex items-center justify-between px-6 pt-6 pb-4">
           <div className="flex items-center space-x-3">
-            <img src={logoIcon} alt="EYEGAZE Logo" className="w-10 h-10 rounded-lg bg-blue-500/20 p-1.5" />
-            <h1 className="text-2xl font-semibold text-white">EYEGAZE</h1>
+            <img src={logoIcon} alt="EYEGAZE Logo" className="w-10 h-10 rounded-lg bg-emerald-400/20 p-1.5" />
+            <h1 className="text-2xl font-semibold bg-gradient-to-r from-emerald-400 to-cyan-400 text-transparent bg-clip-text">
+              EYEGAZE
+            </h1>
           </div>
           <button
             onClick={() => setIsSidebarOpen(false)}
@@ -72,8 +74,8 @@ const Dashboard = () => {
                   to={item.to}
                   className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
                     location.pathname === item.to
-                      ? 'bg-blue-500/20 text-blue-400 shadow-lg'
-                      : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'
+                      ? 'bg-emerald-400/20 text-emerald-400'
+                      : 'text-gray-300 hover:bg-white/5 hover:text-white'
                   }`}
                 >
                   {item.text}
@@ -86,7 +88,7 @@ const Dashboard = () => {
         <div className="absolute bottom-6 w-full px-6">
           <button
             onClick={handleLogout}
-            className="w-full px-6 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-xl hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
+            className="w-full px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition-all duration-200 flex items-center justify-center space-x-2"
           >
             <span>Logout</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,10 +101,10 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="flex-1 lg:ml-72">
         {/* Header */}
-        <header className="fixed top-0 left-0 w-full lg:w-[calc(100%-18rem)] lg:ml-72 bg-white border-b border-gray-300 z-40 shadow-md py-5">
+        <header className="fixed top-0 left-0 w-full lg:w-[calc(100%-18rem)] lg:ml-72 backdrop-blur-xl bg-white/5 border-b border-white/10 z-40 py-5">
           <div className="flex items-center justify-between px-6">
-            {/* Left Side - Page Title */}
             <div className="flex items-center space-x-4">
+              {/* Left Side - Page Title */}
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="lg:hidden focus:outline-none hover:bg-gray-200 p-2 rounded-lg"
@@ -111,65 +113,65 @@ const Dashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <h2 className="text-xl font-semibold text-gray-800 capitalize">
+              <h2 className="text-xl font-semibold text-white capitalize">
                 {location.pathname.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
               </h2>
             </div>
 
             {/* Right Side - User Profile & Dropdown */}
             <div className="relative flex items-center space-x-4">
-              {/* Hide Name & Title on Mobile */}
               <div className="hidden md:flex flex-col items-end">
-                <span className="text-sm font-medium text-gray-800">John Doe</span>
-                <span className="text-xs text-gray-500">EYEGAZE Analytics</span>
+                <span className="text-sm font-medium text-white">John Doe</span>
+                <span className="text-xs text-gray-400">EYEGAZE Analytics</span>
               </div>
 
-              {/* Clickable Profile Icon */}
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="focus:outline-none"
               >
-                <img 
-                  src="https://via.placeholder.com/40" 
-                  alt="User Avatar" 
-                  className="w-10 h-10 rounded-full border border-gray-300 cursor-pointer"
-                />
-              </button>
-
-              {/* Dropdown Button (Hidden on Mobile) */}
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="hidden md:block p-2 rounded-lg focus:outline-none hover:bg-gray-200"
-              >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7" />
-                </svg>
+                <div className="w-10 h-10 rounded-full border border-white/20 overflow-hidden">
+                  <img 
+                    src="https://via.placeholder.com/40" 
+                    alt="User Avatar" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </button>
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div ref={dropdownRef} className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg">
-                  <ul className="py-2 text-gray-700">
+                <div ref={dropdownRef} className="absolute right-0 top-full mt-2 w-48 backdrop-blur-xl bg-white/5 border border-white/10 rounded-lg shadow-lg">
+                  <ul className="py-2 text-gray-200">
                     <li>
-                      <Link to="/dashboard/profile" className="block px-4 py-2 hover:bg-gray-100">My Profile</Link>
+                      <Link to="/dashboard/profile" className="block px-4 py-2 hover:bg-white/5 transition-colors">
+                        My Profile
+                      </Link>
                     </li>
                     <li>
-                      <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-100">Account Settings</Link>
+                      <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-white/5 transition-colors">
+                        Account Settings
+                      </Link>
                     </li>
                     <li>
-                      <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600">Log Out</button>
+                      <button 
+                        onClick={handleLogout} 
+                        className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-500/10 transition-colors"
+                      >
+                        Log Out
+                      </button>
                     </li>
                   </ul>
                 </div>
               )}
-
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="pt-20">
-          <Outlet />
+        <div className="pt-26 p-6">
+          <div className="border-white/10 rounded-2xl">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

@@ -1,28 +1,26 @@
 import React, { useState } from 'react';
 import { signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../config/firebase'; // Import the auth object
+import { auth } from '../config/firebase';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const AuthenticatePage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
+  const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
-
   const provider = new GoogleAuthProvider();
 
-  // Handle Google Sign-In
   const handleGoogleSignIn = async () => {
     try {
       await signInWithPopup(auth, provider);
-      navigate('/dashboard'); // Redirect to dashboard after successful authentication
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error signing in with Google:', error);
       alert('Failed to sign in with Google.');
     }
   };
 
-  // Handle Email/Password Sign-In or Sign-Up
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -31,7 +29,7 @@ const AuthenticatePage = () => {
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
       }
-      navigate('/dashboard'); // Redirect to dashboard after successful authentication
+      navigate('/dashboard');
     } catch (error) {
       console.error('Authentication error:', error);
       alert('Authentication failed. Please check your credentials.');
@@ -39,67 +37,94 @@ const AuthenticatePage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#121212] text-white">
-      {/* Left Image Section */}
-      <div className="hidden lg:block lg:w-1/2 h-screen bg-cover bg-center" style={{ backgroundImage: "url('https://via.placeholder.com/800x1200')" }}>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-emerald-900 relative overflow-hidden">
+      {/* Background gradient circles */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-purple-500/10 blur-3xl"></div>
       </div>
 
-      {/* Right Form Section */}
-      <div className="lg:w-1/2 w-full flex flex-col items-center justify-center px-8">
-        <h1 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
-          Welcome to EYEGAZE Authentication
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="backdrop-blur-lg bg-white/5 p-8 rounded-2xl border border-white/10 w-full max-w-md relative z-10"
+      >
+        <h1 className="text-4xl font-bold text-center mb-8">
+          <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 text-transparent bg-clip-text">
+            Welcome to EYEGAZE
+          </span>
         </h1>
-        <p className="text-lg text-gray-400 mb-8">
-          {isLogin ? 'Sign in to access our platform.' : 'Create an account to get started.'}
-        </p>
-
-        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-400">Email</label>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400/50"
+              placeholder="Email"
               required
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-400">Password</label>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-400/50"
+              placeholder="Password"
               required
             />
-          </div>
-          <button
+          </motion.div>
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
             type="submit"
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            className="w-full py-3 bg-gradient-to-r from-emerald-400 to-cyan-400 text-black font-semibold rounded-lg hover:opacity-90 transition"
           >
             {isLogin ? 'Sign In' : 'Create Account'}
-          </button>
+          </motion.button>
         </form>
 
-        <div className="mt-4 flex items-center justify-between w-full max-w-md">
-          <button
+        <div className="mt-6 flex flex-col items-center space-y-4">
+          <div className="w-full flex items-center gap-4 my-4">
+            <div className="flex-1 h-px bg-white/10"></div>
+            <span className="text-gray-400">or</span>
+            <div className="flex-1 h-px bg-white/10"></div>
+          </div>
+
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            onClick={handleGoogleSignIn}
+            className="w-full py-3 bg-white/5 border border-white/10 rounded-lg hover:border-emerald-400/50 transition flex items-center justify-center text-white"
+          >
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Icon" className="w-5 h-5 mr-2" />
+            Sign in with Google
+          </motion.button>
+          
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-blue-400 hover:underline cursor-pointer"
+            className="text-sm text-gray-400 hover:text-emerald-400 transition"
           >
             {isLogin ? 'Create a new account' : 'Already have an account? Sign In'}
-          </button>
-          <button
-            onClick={handleGoogleSignIn}
-            className="flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
-          >
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Icon" className="w-6 h-6 mr-2" />
-            Sign in with Google
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

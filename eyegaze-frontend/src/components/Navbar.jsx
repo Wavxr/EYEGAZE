@@ -6,26 +6,28 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white dark:bg-gray-900 shadow-md z-50">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+    <nav className="fixed top-0 left-0 w-full backdrop-blur-lg bg-gray-900/50 border-b border-white/10 z-50">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
-        <div className="text-lg font-bold text-gray-800 dark:text-white">
-          EYEGAZE
+        <div className="text-xl font-bold">
+          <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 text-transparent bg-clip-text">
+            EYEGAZE
+          </span>
         </div>
 
         {/* Desktop Navigation */}
-        <ul className="hidden md:flex space-x-6 text-gray-700 dark:text-gray-300">
-          <li>Home</li>
-          <li>Features</li>
-          <li>Pricing</li>
-          <li>Testimonials</li>
+        <ul className="hidden md:flex space-x-8 text-gray-300">
+          <li className="hover:text-emerald-400 transition-colors cursor-pointer">Home</li>
+          <li className="hover:text-emerald-400 transition-colors cursor-pointer">Features</li>
+          <li className="hover:text-emerald-400 transition-colors cursor-pointer">Pricing</li>
+          <li className="hover:text-emerald-400 transition-colors cursor-pointer">Testimonials</li>
         </ul>
 
         {/* Call-to-Action Button */}
         <div className="hidden md:flex">
           <a
             href="/authenticate"
-            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-md hover:shadow-lg transition-transform hover:scale-105"
+            className="px-6 py-2 bg-gradient-to-r from-emerald-400 to-cyan-400 text-black font-semibold rounded-lg hover:opacity-90 transition"
           >
             Try EYEGAZE Now
           </a>
@@ -34,9 +36,9 @@ export default function Navbar() {
         {/* Mobile Menu Toggle */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden"
+          className="md:hidden text-white hover:text-emerald-400 transition-colors"
         >
-          <ChevronDownIcon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+          <ChevronDownIcon className="w-6 h-6" />
         </button>
       </div>
 
@@ -47,18 +49,18 @@ export default function Navbar() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="md:hidden bg-white dark:bg-gray-800 p-4"
+          className="md:hidden backdrop-blur-lg bg-gray-900/50 border-b border-white/10"
         >
-          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
-            <li>Home</li>
-            <li>Features</li>
-            <li>Pricing</li>
-            <li>Testimonials</li>
+          <ul className="space-y-4 p-6 text-gray-300">
+            <li className="hover:text-emerald-400 transition-colors cursor-pointer">Home</li>
+            <li className="hover:text-emerald-400 transition-colors cursor-pointer">Features</li>
+            <li className="hover:text-emerald-400 transition-colors cursor-pointer">Pricing</li>
+            <li className="hover:text-emerald-400 transition-colors cursor-pointer">Testimonials</li>
           </ul>
-          <div className="mt-4">
+          <div className="p-6 pt-0">
             <a
               href="/authenticate"
-              className="w-full block px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-md text-center hover:shadow-lg transition-transform hover:scale-105"
+              className="w-full block px-6 py-3 bg-gradient-to-r from-emerald-400 to-cyan-400 text-black font-semibold rounded-lg text-center hover:opacity-90 transition"
             >
               Try EYEGAZE Now
             </a>
