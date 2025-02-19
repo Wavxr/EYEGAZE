@@ -19,6 +19,7 @@
       justify-content: center;
       align-items: flex-start;
       background-color: #1a1a1a;
+      font-family: Arial, sans-serif;
     }
 
     #image-container {
@@ -32,100 +33,136 @@
     }
 
     #cursor-position {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      font-family: Arial, sans-serif;
-      z-index: 9999;
-      color: #fff;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 14px;
+      display: none; /* Hide the cursor position */
     }
-
     #loading {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       color: white;
-      font-family: Arial, sans-serif;
       font-size: 18px;
       background: rgba(0, 0, 0, 0.8);
-      padding: 20px;
-      border-radius: 10px;
+      padding: 20px 30px;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
       display: none;
     }
-
     #overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.95);
       color: white;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      font-family: Arial, sans-serif;
-      cursor: pointer;
+      text-align: center;
+      padding: 2rem;
       z-index: 10000;
     }
-
+    #overlay h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(to right, #4ade80, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    #overlay p {
+      font-size: 1.1rem;
+      max-width: 600px;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      color: #94a3b8;
+    }
+    #start-session {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      background: linear-gradient(to right, #4ade80, #22d3ee);
+      border: none;
+      border-radius: 12px;
+      color: black;
+      cursor: pointer;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    #start-session:hover {
+      opacity: 0.9;
+    }
     #end-session {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: red;
+      padding: 1rem 2rem;
+      background: linear-gradient(to right, #ef4444, #f97316);
       color: white;
-      font-size: 16px;
-      padding: 10px 20px;
-      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
       cursor: pointer;
       z-index: 9999;
       display: none;
+      transition: opacity 0.2s;
     }
-
+    #end-session:hover {
+      opacity: 0.9;
+    }
     #feedback-form {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 2.5rem;
+      border-radius: 16px;
       z-index: 10001;
       display: none;
-      width: 300px;
+      width: 500px;
+      color: white;
     }
-
+    #feedback-form h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(to right, #4ade80, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
     #feedback-form input,
     #feedback-form select {
       width: 100%;
-      padding: 8px;
-      margin: 8px 0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      padding: 1rem;
+      margin: 0.5rem 0 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
     }
-
+    #feedback-form select option {
+      background: #1a1a1a;
+      color: white;
+    }
     #feedback-form button {
       width: 100%;
-      padding: 10px;
-      background: #4CAF50;
-      color: white;
+      padding: 1rem;
+      background: linear-gradient(to right, #4ade80, #22d3ee);
+      color: black;
       border: none;
-      border-radius: 4px;
+      border-radius: 12px;
       cursor: pointer;
-      margin-top: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: opacity 0.2s;
     }
-
     #feedback-form button:hover {
-      background: #45a049;
+      opacity: 0.9;
     }
-
     #heatmap-container {
       position: absolute;
       top: 0;
@@ -146,7 +183,16 @@
   </div>
 
   <div id="loading">Loading website image...</div>
-  <div id="overlay">Click to Start Eye Tracking</div>
+  <div id="overlay">
+    <h1>Welcome to EYEGAZE Testing</h1>
+    <p>
+      You're about to participate in a website eye-tracking session. We'll track your eye movements to understand how you interact with the website design.
+    </p>
+    <p>
+      You're free to end the session at any time by clicking the "End Session" button. Your privacy is important to us, and all data will be used for analysis purposes only.
+    </p>
+    <button id="start-session">Start Session</button>
+  </div>
   <button id="end-session">End Session</button>
 
   <div id="feedback-form">

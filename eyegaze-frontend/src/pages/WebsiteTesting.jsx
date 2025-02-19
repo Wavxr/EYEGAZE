@@ -174,21 +174,6 @@ const WebsiteTesting = () => {
         </form>
       </motion.div>
 
-      {/* Preview Section */}
-      {previewUrl && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="lg:col-span-2 backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
-        >
-          <h3 className="text-xl font-semibold text-white mb-6">Preview</h3>
-          <div className="rounded-xl overflow-hidden">
-            <img src={previewUrl} alt="Preview" className="w-full h-auto" />
-          </div>
-        </motion.div>
-      )}
-
       {/* Participant Link Section */}
       {participantLink && (
         <motion.div
@@ -214,6 +199,21 @@ const WebsiteTesting = () => {
                 Copy
               </button>
             </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Preview Section */}
+      {previewUrl && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="lg:col-span-2 backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
+        >
+          <h3 className="text-xl font-semibold text-white mb-6">Preview</h3>
+          <div className="rounded-xl overflow-hidden">
+            <img src={previewUrl} alt="Preview" className="w-full h-auto" />
           </div>
         </motion.div>
       )}
