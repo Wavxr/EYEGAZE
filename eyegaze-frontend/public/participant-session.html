@@ -172,11 +172,13 @@
     let gazePoints = [];
     let sessionStartTime = null;
     let sessionEndTime = null;
+    // Change this part in the script section
     const params = new URLSearchParams(window.location.search);
     const fileKey = params.get("file_key");
-
-    if (!fileKey) {
-      document.body.innerHTML = "<p style='color: white; text-align: center;'>Error: No file_key provided.</p>";
+    const websiteId = params.get("website_id");
+    
+    if (!fileKey || !websiteId) {
+      document.body.innerHTML = "<p style='color: white; text-align: center;'>Error: Missing required parameters.</p>";
     } else {
       document.getElementById("loading").style.display = "block";
       const img = document.getElementById("website-image");
@@ -207,29 +209,25 @@
       document.getElementById("feedback-form").style.display = "block";
     });
 
+    // Update the submitFeedback function
     async function submitFeedback() {
       const name = document.getElementById("participant-name").value;
       const feedback = document.getElementById("feedback-rating").value;
-
+    
       if (!name || !feedback) {
         alert("Please fill in all fields");
         return;
       }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const fileKey = urlParams.get('file_key');
-      const sessionId = window.location.pathname.split('/').pop();
-
+    
       const participantData = {
         name: name,
         feedback: parseInt(feedback),
         session_start_time: sessionStartTime,
         session_end_time: sessionEndTime,
         gaze_points: gazePoints,
-        file_key: fileKey,
-        session_id: sessionId
+        website_id: websiteId  // Use the websiteId we got from URL params
       };
-
+    
       try {
         const response = await fetch('http://localhost:8000/save-participant-data', {
           method: 'POST',
@@ -238,16 +236,17 @@
           },
           body: JSON.stringify(participantData)
         });
-
+    
         if (!response.ok) {
-          throw new Error('Failed to save participant data');
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Failed to save participant data');
         }
-
+    
         alert('Thank you for your feedback! Session completed.');
         window.close();
       } catch (error) {
         console.error('Error:', error);
-        alert('Error saving feedback. Please try again.');
+        alert('Error saving feedback: ' + error.message);
       }
     }
 

@@ -40,85 +40,53 @@ def save_website_data(owner_id: str, owner_name: str, title: str, guideline: str
         "createdAt": firestore.SERVER_TIMESTAMP
     }
     
-    # Create a new document in the websites collection
     doc_ref = db.collection('websites').document()
     doc_ref.set(website_data)
     return doc_ref.id
 
 def save_session_participant(website_id: str, participant_data: dict):
     """
-    Save participant session data to Firebase.
-    
-    Args:
-        website_id: ID of the website document
-        participant_data: Dictionary containing participant session data
+    Save participant session data to Firebase as a separate collection.
     """
-    # Create a new participant document in the website's participants subcollection
-    participant_doc = db.collection('websites').document(website_id).collection('participants').document()
-    
-    # Save participant metadata
-    participant_doc.set({
+    session_data = {
+        "websiteId": website_id,  # Reference to website
         "name": participant_data.get("name"),
         "feedback": participant_data.get("feedback"),
         "session_start_time": participant_data.get("session_start_time"),
         "session_end_time": participant_data.get("session_end_time"),
-        "gaze_analysis": participant_data.get("gaze_analysis", {}),
+        "gaze_points": participant_data.get("gaze_points", []),  # Store directly in document
         "createdAt": firestore.SERVER_TIMESTAMP
-    })
+    }
     
-    # Save gaze points in a subcollection
-    gaze_points = participant_data.get("gaze_points", [])
-    gaze_batch = db.batch()
-    for point in gaze_points:
-        point_doc = participant_doc.collection("gazePoints").document()
-        gaze_batch.set(point_doc, point)
-    
-    # Commit all gaze points in a single batch
-    gaze_batch.commit()
-    return participant_doc.id
+    doc_ref = db.collection('sessions').document()
+    doc_ref.set(session_data)
+    return doc_ref.id
 
-def get_participant_session(website_id: str, participant_id: str) -> dict:
+def get_participant_session(website_id: str, session_id: str) -> dict:
     """
     Retrieve participant session data from Firebase.
-    
-    Args:
-        website_id: ID of the website document
-        participant_id: ID of the participant document
-        
-    Returns:
-        Dictionary containing session data including gaze points and analysis
     """
     try:
-        # Get website document to get the screenshot URL
+        # Get website document
         website_doc = db.collection('websites').document(website_id).get()
         if not website_doc.exists:
             return None
             
         website_data = website_doc.to_dict()
         
-        # Get participant document
-        participant_doc = db.collection('websites').document(website_id)\
-            .collection('participants').document(participant_id).get()
-        if not participant_doc.exists:
+        # Get session document
+        session_doc = db.collection('sessions').document(session_id).get()
+        if not session_doc.exists:
             return None
             
-        participant_data = participant_doc.to_dict()
-        
-        # Get gaze points
-        gaze_points = []
-        gaze_points_ref = participant_doc.reference.collection('gazePoints').stream()
-        for point_doc in gaze_points_ref:
-            gaze_points.append(point_doc.to_dict())
+        session_data = session_doc.to_dict()
             
-        # Combine all data
-        session_data = {
-            **participant_data,
-            'gaze_points': gaze_points,
-            'screenshot_url': website_data.get('s3FileKey'),  # URL to the website screenshot
+        # Combine data
+        return {
+            **session_data,
+            'screenshot_url': website_data.get('s3FileKey'),
             'website_title': website_data.get('title')
         }
-        
-        return session_data
         
     except Exception as e:
         print(f"Error retrieving session data: {str(e)}")
@@ -126,13 +94,7 @@ def get_participant_session(website_id: str, participant_id: str) -> dict:
 
 def get_website_sessions(website_id: str) -> list:
     """
-    Get all participant sessions for a website.
-    
-    Args:
-        website_id: ID of the website document
-        
-    Returns:
-        List of session data with participant info
+    Get all sessions for a website.
     """
     try:
         # Get website document
@@ -142,80 +104,26 @@ def get_website_sessions(website_id: str) -> list:
             
         website_data = website_doc.to_dict()
         
-        # Get all participants for the website
-        participants = db.collection('websites').document(website_id)\
-            .collection('participants').stream()
+        # Query sessions collection for this website
+        sessions = db.collection('sessions')\
+            .where('websiteId', '==', website_id)\
+            .stream()
             
-        sessions = []
-        for participant in participants:
-            participant_data = participant.to_dict()
-            sessions.append({
-                "id": participant.id,
-                "name": participant_data.get("name"),
-                "feedback": participant_data.get("feedback"),
-                "session_start_time": participant_data.get("session_start_time"),
-                "session_end_time": participant_data.get("session_end_time"),
-                "websiteImageUrl": website_data.get("s3FileKey"),  # S3 URL of the website screenshot
-                "createdAt": participant_data.get("createdAt")
+        sessions_list = []
+        for session in sessions:
+            session_data = session.to_dict()
+            sessions_list.append({
+                "id": session.id,
+                "name": session_data.get("name"),
+                "feedback": session_data.get("feedback"),
+                "session_start_time": session_data.get("session_start_time"),
+                "session_end_time": session_data.get("session_end_time"),
+                "websiteImageUrl": website_data.get("s3FileKey"),
+                "createdAt": session_data.get("createdAt")
             })
             
-        return sorted(sessions, key=lambda x: x.get("createdAt", 0), reverse=True)
+        return sorted(sessions_list, key=lambda x: x.get("createdAt", 0), reverse=True)
         
     except Exception as e:
         print(f"Error getting website sessions: {str(e)}")
         return []
-
-def get_participant_gaze_data(website_id: str, participant_id: str) -> dict:
-    """
-    Get participant's gaze data for heatmap visualization.
-    
-    Args:
-        website_id: ID of the website document
-        participant_id: ID of the participant document
-        
-    Returns:
-        Dictionary containing gaze points and website image URL
-    """
-    try:
-        # Get website document to get the screenshot URL
-        website_doc = db.collection('websites').document(website_id).get()
-        if not website_doc.exists:
-            return None
-            
-        website_data = website_doc.to_dict()
-        
-        # Get participant document
-        participant_doc = db.collection('websites').document(website_id)\
-            .collection('participants').document(participant_id).get()
-            
-        if not participant_doc.exists:
-            return None
-            
-        participant_data = participant_doc.to_dict()
-        
-        # Get all gaze points
-        gaze_points = []
-        gaze_points_docs = participant_doc.collection("gazePoints").stream()
-        for point in gaze_points_docs:
-            point_data = point.to_dict()
-            gaze_points.append({
-                "x": point_data.get("x"),
-                "y": point_data.get("y"),
-                "timestamp": point_data.get("timestamp")
-            })
-            
-        return {
-            "participant": {
-                "id": participant_id,
-                "name": participant_data.get("name"),
-                "feedback": participant_data.get("feedback"),
-                "session_start_time": participant_data.get("session_start_time"),
-                "session_end_time": participant_data.get("session_end_time")
-            },
-            "websiteImageUrl": website_data.get("s3FileKey"),
-            "gaze_points": sorted(gaze_points, key=lambda x: x.get("timestamp", 0))
-        }
-        
-    except Exception as e:
-        print(f"Error getting participant gaze data: {str(e)}")
-        return None

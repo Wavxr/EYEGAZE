@@ -8,7 +8,7 @@ router = APIRouter()
 async def save_participant_data(data: dict):
     try:
         # Extract required fields from request data
-        website_id = data.get("session_id")  # session_id is actually website_id
+        website_id = data.get("website_id")  # Changed from session_id
         participant_name = data.get("name")
         feedback = data.get("feedback")
         session_start_time = data.get("session_start_time")
@@ -32,7 +32,7 @@ async def save_participant_data(data: dict):
             "gaze_points": gaze_points
         }
         
-        # Save participant session data to Firebase in a separate top-level collection
+        # Save participant session data to Firebase
         participant_id = save_session_participant(website_id, participant_data)
         
         return {

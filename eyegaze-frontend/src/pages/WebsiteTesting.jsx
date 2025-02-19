@@ -63,19 +63,15 @@ const WebsiteTesting = () => {
   
     try {
       const response = await axios.post("http://localhost:8000/upload-image", formDataToSend);
-  
+      
       console.log("Backend Response:", response.data);
-  
+      
       if (!response.data.file_key) {
         console.error("Error: file_key missing in response.");
         alert("Error generating session. Please try again.");
         return;
       }
   
-      // Generate correct participant link
-      const participantURL = `http://localhost:5173/session/${response.data.session_id}?file_key=${encodeURIComponent(response.data.file_key)}`;
-  
-      // Save website data to Firebase
       try {
         const websiteData = {
           owner_id: user.uid,
@@ -83,18 +79,22 @@ const WebsiteTesting = () => {
           title: formData.title,
           guideline: formData.guideline,
           s3_file_key: response.data.file_key,
-          participant_link: participantURL
+          participant_link: `${window.location.origin}/participant-session.html?file_key=${response.data.file_key}`
         };
-
-        await axios.post("http://localhost:8000/save-website", websiteData);
+  
+        const websiteResponse = await axios.post("http://localhost:8000/save-website", websiteData);
+        
+        // Generate participant link with both file_key and website_id
+        const participantURL = `${window.location.origin}/participant-session.html?file_key=${response.data.file_key}&website_id=${websiteResponse.data.website_id}`;
+        setParticipantLink(participantURL);
+        
+        alert("Image uploaded and metadata saved successfully!");
       } catch (error) {
         console.error("Error saving to Firebase:", error);
         alert("Website uploaded but there was an error saving metadata. Please try again.");
         return;
       }
   
-      setParticipantLink(participantURL);
-      alert("Image uploaded and metadata saved successfully!");
     } catch (error) {
       console.error("Error:", error);
       alert(`Error: ${error.message}`);
