@@ -23,25 +23,34 @@ s3_client = boto3.client(
 
 def upload_to_s3(data, key: str, content_type: str = "image/jpeg"):
     """
-    Upload data (bytes or str) to S3. Returns the public URL.
+    Upload data (bytes or file object) to S3. Returns True if successful.
     """
     try:
-        if isinstance(data, str):
-            data = data.encode("utf-8")
-        elif not isinstance(data, bytes):
-            raise ValueError(f"Expected bytes-like object, got {type(data)} instead.")
+        # Handle file object
+        if hasattr(data, 'read'):
+            file_content = data.read()
+        else:
+            file_content = data
+
+        # Convert string to bytes if needed
+        if isinstance(file_content, str):
+            file_content = file_content.encode("utf-8")
+        elif not isinstance(file_content, bytes):
+            raise ValueError(f"Expected bytes-like object, got {type(file_content)} instead.")
 
         s3_client.put_object(
             Bucket=BUCKET_NAME,
             Key=key,
-            Body=data,
+            Body=file_content,
             ContentType=content_type
         )
-        return f"https://{BUCKET_NAME}.s3.amazonaws.com/{key}"
+        return True
     except NoCredentialsError:
-        raise Exception("AWS credentials not found.")
+        print("AWS credentials not found.")
+        return False
     except Exception as e:
-        raise Exception(f"Error uploading to S3: {e}")
+        print(f"Error uploading to S3: {e}")
+        return False
 
 def download_from_s3(key: str):
     """

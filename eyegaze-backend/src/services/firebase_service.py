@@ -108,7 +108,7 @@ def get_website_sessions(website_id: str) -> list:
         sessions = db.collection('sessions')\
             .where('websiteId', '==', website_id)\
             .stream()
-            
+        
         sessions_list = []
         for session in sessions:
             session_data = session.to_dict()
@@ -126,4 +126,59 @@ def get_website_sessions(website_id: str) -> list:
         
     except Exception as e:
         print(f"Error getting website sessions: {str(e)}")
+        return []
+
+
+def get_website_gaze_data(website_id: str) -> dict:
+    """
+    Get all gaze data for a website including the image URL.
+    """
+    try:
+        website_doc = db.collection('websites').document(website_id).get()
+        if not website_doc.exists:
+            return None
+            
+        website_data = website_doc.to_dict()
+        
+        # Get all sessions for this website
+        sessions = db.collection('sessions')\
+            .where('websiteId', '==', website_id)\
+            .stream()
+            
+        all_gaze_points = []
+        for session in sessions:
+            session_data = session.to_dict()
+            all_gaze_points.extend(session_data.get("gaze_points", []))
+            
+        return {
+            "imageUrl": website_data.get("s3FileKey"),
+            "websiteTitle": website_data.get("title"),
+            "gazePoints": all_gaze_points
+        }
+        
+    except Exception as e:
+        print(f"Error getting gaze data: {str(e)}")
+        return None
+def get_all_websites() -> list:
+    """
+    Get all websites from Firebase.
+    """
+    try:
+        websites = db.collection('websites').stream()
+        websites_list = []
+        
+        for website in websites:
+            website_data = website.to_dict()
+            websites_list.append({
+                "id": website.id,
+                "title": website_data.get("title"),
+                "guideline": website_data.get("guideline"),
+                "ownerName": website_data.get("ownerName"),
+                "createdAt": website_data.get("createdAt")
+            })
+            
+        return sorted(websites_list, key=lambda x: x.get("createdAt", 0), reverse=True)
+        
+    except Exception as e:
+        print(f"Error getting websites: {str(e)}")
         return []

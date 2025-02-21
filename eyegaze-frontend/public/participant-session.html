@@ -288,6 +288,24 @@
           throw new Error(errorData.detail || 'Failed to save participant data');
         }
     
+        const result = await response.json();
+        const participantId = result.participant_id;
+    
+        // Generate heatmap
+        console.log('Generating heatmap...');
+        const heatmapResponse = await fetch(`http://localhost:8000/generate-heatmap/${websiteId}?session_id=${participantId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+    
+        if (!heatmapResponse.ok) {
+          console.error('Failed to generate heatmap');
+        } else {
+          console.log('Heatmap generated successfully');
+        }
+    
         alert('Thank you for your feedback! Session completed.');
         window.close();
       } catch (error) {

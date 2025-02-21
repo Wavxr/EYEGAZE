@@ -21,6 +21,9 @@ async def get_image(file_key: str):
         elif file_key.endswith(".webp"):
             content_type = "image/webp"
         
-        return Response(content=image_data, media_type=content_type)
+        return Response(
+            content=image_data, 
+            media_type=content_type, 
+            headers={"Access-Control-Allow-Origin": "*"})
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))

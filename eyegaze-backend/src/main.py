@@ -12,26 +12,22 @@ load_dotenv()
 
 app = FastAPI()
 
-# Define allowed origins for CORS
-origins = [
-    "http://localhost:5173", 
-    "https://your-frontend-url.com", 
-]
-
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers for different functionalities
+
+# main.py
 app.include_router(image_upload_router)
 app.include_router(image_serve_router)
 app.include_router(gaze_data_router)
 app.include_router(website_router)
+
 
 # Root endpoint
 @app.get("/")
