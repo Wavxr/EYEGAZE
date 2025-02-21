@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import ProtectedRoute from './middleware/ProtectedRoute';
 import SessionPage from './pages/SessionPage';
+import HeatmapDetail from './pages/HeatmapDetail';
 
 const App = () => {
   return (
@@ -36,6 +37,7 @@ const App = () => {
             <Route path="overview" element={<Overview />} />
             <Route path="website-testing" element={<WebsiteTesting />} />
             <Route path="heatmaps" element={<Heatmaps />} />
+            <Route path="heatmap/:id" element={<HeatmapDetail />} />
             <Route path="prescription" element={<Prescription />} />
             <Route path="diagnostic" element={<Diagnostic />} />
             <Route path="help-support" element={<HelpSupport />} />

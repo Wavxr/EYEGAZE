@@ -6,6 +6,7 @@ from ..services.firebase_service import (
     get_all_websites
 )
 from ..scripts.generate_heatmap import generate_heatmap
+from ..services.firebase_service import db
 
 # Initialize router first
 router = APIRouter()
@@ -24,6 +25,32 @@ async def generate_heatmap_endpoint(website_id: str, session_id: str = None):
 @router.get("/website-gaze-data/{website_id}")
 async def get_website_gaze_data_endpoint(website_id: str):
     try:
+        website_doc = db.collection('websites').document(website_id).get()
+        if not website_doc.exists:
+            raise HTTPException(status_code=404, detail="Website not found")
+            
+        website_data = website_doc.to_dict()
+        
+        # Get all sessions for this website
+        sessions = db.collection('sessions')\
+            .where('websiteId', '==', website_id)\
+            .stream()
+            
+        participants = []
+        for session in sessions:
+            session_data = session.to_dict()
+            participants.append({
+                "name": session_data.get("name"),
+                "feedback": session_data.get("feedback")
+            })
+            
+        return {
+            "websiteTitle": website_data.get("title"),
+            "heatmapUrl": website_data.get("heatmapUrl"),
+            "participants": participants
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
         gaze_data = get_website_gaze_data(website_id)
         if not gaze_data:
             raise HTTPException(status_code=404, detail="Website data not found")
