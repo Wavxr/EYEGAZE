@@ -1,4 +1,4 @@
-# 👁️ EYEGAZE
+<h1 align="center">👁️ EYEGAZE<h1>
 
 EYEGAZE is an innovative web application that leverages eye-tracking technology to provide valuable insights into user behavior and website interaction patterns. This thesis project aims to revolutionize how we understand user engagement with web interfaces by generating detailed heatmaps and analytics based on eye movement data. Additionally, the app will recommend insights using GPT Vision to help improve UI/UX design based on collected gaze data.
 
