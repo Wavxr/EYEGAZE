@@ -35,7 +35,7 @@ Additionally, the app will recommend insights using GPT Vision to help improve U
 <h2>⚙️ Setup Instructions</h2>
 
 <h3>1. Clone the Repository</h3>
-<pre><code>git clone https://github.com/yourusername/EYEGAZE.git</code></pre>
+<pre><code>git clone https://github.com/Wavxr/EYEGAZE.git</code></pre>
 
 <h3>2. Frontend Setup</h3>
 <pre><code>cd eyegaze-frontend
