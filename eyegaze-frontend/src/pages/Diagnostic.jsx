@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Diagnostic = () => {
   const [currentImage, setCurrentImage] = useState(0);
 
   const images = [
     '/images/heatmap.jpg',
-    '/images/saccadic_movement.jpg',
     '/images/fixation_duration.jpg',
+    '/images/saccadic_movement.jpg',
     '/images/first_fixation_duration.png'
   ];
 
@@ -48,14 +48,19 @@ const Diagnostic = () => {
               </button>
             </div>
 
-            <motion.img
-              src={images[currentImage]}
-              alt={`Visualization ${currentImage + 1}`}
-              className="w-full h-auto object-contain rounded-lg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            />
+            {/* Replace the motion.img with this code block */}
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentImage}
+                src={images[currentImage]}
+                alt={`Visualization ${currentImage + 1}`}
+                className="w-full h-auto object-contain rounded-lg"
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                transition={{ duration: 0.3 }}
+              />
+            </AnimatePresence>
 
             <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3">
               {images.map((_, idx) => (
