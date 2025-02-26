@@ -36,8 +36,8 @@ const Dashboard = () => {
     { to: '/dashboard/overview', text: 'Overview' },
     { to: '/dashboard/website-testing', text: 'Website Testing' },
     { to: '/dashboard/heatmaps', text: 'Heatmaps' },
-    { to: '/dashboard/prescription', text: 'Prescription' },
     { to: '/dashboard/diagnostic', text: 'Diagnostic' },
+    { to: '/dashboard/prescription', text: 'Prescription' },
     { to: '/dashboard/help-support', text: 'Help & Support' },
   ];
 
