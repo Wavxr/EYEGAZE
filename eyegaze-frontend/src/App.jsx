@@ -1,5 +1,7 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Import Navigate
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './config/firebase';
 import { ThemeProvider } from './context/ThemeContext';
 import LandingPage from './pages/LandingPage';
 import AuthenticatePage from './pages/AuthenticatePage';
@@ -17,6 +19,26 @@ import SessionPage from './pages/SessionPage';
 import HeatmapDetail from './pages/HeatmapDetail';
 
 const App = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-emerald-900">
+        <div className="backdrop-blur-lg bg-white/5 p-8 rounded-2xl border border-white/10">
+          <div className="text-emerald-400">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ThemeProvider>
       <Router>
