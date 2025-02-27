@@ -5,6 +5,7 @@ const HeatmapComponent = ({ websiteId, thumbnail = false, onClick }) => {
   const [heatmapData, setHeatmapData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
 
   useEffect(() => {
     const fetchHeatmapData = async () => {
@@ -15,6 +16,21 @@ const HeatmapComponent = ({ websiteId, thumbnail = false, onClick }) => {
         }
         const data = await response.json();
         setHeatmapData(data);
+        
+        // Try to get heatmap image, fallback to original image
+        try {
+          const heatmapResponse = await fetch(`http://localhost:8000/get-heatmap/${websiteId}`);
+          if (heatmapResponse.ok) {
+            const blob = await heatmapResponse.blob();
+            setImageUrl(URL.createObjectURL(blob));
+          } else {
+            // If heatmap not available, use original image
+            setImageUrl(`http://localhost:8000/get-image/${data.imageUrl}`);
+          }
+        } catch (imgError) {
+          console.error('Error loading heatmap:', imgError);
+          setImageUrl(`http://localhost:8000/get-image/${data.imageUrl}`);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -23,6 +39,13 @@ const HeatmapComponent = ({ websiteId, thumbnail = false, onClick }) => {
     };
 
     fetchHeatmapData();
+    
+    // Cleanup function to revoke object URL
+    return () => {
+      if (imageUrl && imageUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
   }, [websiteId]);
 
   if (loading) {
@@ -53,16 +76,18 @@ const HeatmapComponent = ({ websiteId, thumbnail = false, onClick }) => {
       onClick={onClick}
     >
       <div className="relative">
-        <img 
-          src={`http://localhost:8000/get-image/${heatmapData.heatmapUrl}`}
-          alt={heatmapData.websiteTitle}
-          className={`w-full ${thumbnail ? 'h-48 object-cover' : 'h-auto'}`}
-        />
+        {imageUrl && (
+          <img 
+            src={imageUrl}
+            alt={heatmapData?.websiteTitle}
+            className={`w-full ${thumbnail ? 'h-48 object-cover' : 'h-auto'}`}
+          />
+        )}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-          <h3 className="text-white font-semibold">{heatmapData.websiteTitle}</h3>
+          <h3 className="text-white font-semibold">{heatmapData?.websiteTitle}</h3>
           {!thumbnail && (
             <p className="text-gray-200 text-sm mt-1">
-              {heatmapData.participants?.length || 0} participants
+              {heatmapData?.participants?.length || 0} participants
             </p>
           )}
         </div>

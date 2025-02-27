@@ -4,6 +4,7 @@ from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import Response
 from typing import Optional
 from ..services.aws_service import upload_to_s3, download_from_s3
+from ..services.firebase_service import db
 
 router = APIRouter()
 
@@ -76,3 +77,32 @@ async def get_image(file_key: str):
         )
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
+@router.get("/get-heatmap/{website_id}")
+async def get_heatmap(website_id: str):
+    """
+    Get the heatmap image for a specific website.
+    """
+    try:
+        website_doc = db.collection('websites').document(website_id).get()
+        if not website_doc.exists:
+            raise HTTPException(status_code=404, detail="Website not found")
+            
+        website_data = website_doc.to_dict()
+        heatmap_url = website_data.get("heatmapUrl")
+        
+        if not heatmap_url:
+            # If no heatmap exists, return the original website image
+            s3_file_key = website_data.get("s3FileKey")
+            if not s3_file_key:
+                raise HTTPException(status_code=404, detail="No image found")
+            image_data = download_from_s3(s3_file_key)
+        else:
+            image_data = download_from_s3(heatmap_url)
+            
+        if not image_data:
+            raise HTTPException(status_code=404, detail="Image not found in storage")
+            
+        return StreamingResponse(io.BytesIO(image_data), media_type="image/jpeg")
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

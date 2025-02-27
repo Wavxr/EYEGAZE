@@ -143,10 +143,10 @@ def list_website_sessions(website_id: str) -> list:
         print(f"Error listing sessions: {str(e)}")
         return []
 
-# Heatmap-related functions
-def get_website_heatmap_data(website_id: str) -> dict:
+def get_session_gazepoints_data(website_id: str, session_id: str) -> dict:
     """
-    Get website data and combined gaze points for heatmap generation.
+    Get website data and gaze points for a specific session.
+    Can be used for individual heatmaps, saccade analysis, or other visualizations.
     """
     try:
         website_doc = db.collection('websites').document(website_id).get()
@@ -154,21 +154,21 @@ def get_website_heatmap_data(website_id: str) -> dict:
             return None
             
         website_data = website_doc.to_dict()
-        sessions = db.collection('sessions')\
-            .where('websiteId', '==', website_id)\
-            .stream()
+        
+        session_doc = db.collection('sessions').document(session_id).get()
+        if not session_doc.exists:
+            return None
             
-        all_gaze_points = []
-        for session in sessions:
-            session_data = session.to_dict()
-            all_gaze_points.extend(session_data.get("gaze_points", []))
-            
+        session_data = session_doc.to_dict()
+        
         return {
             "imageUrl": website_data.get("s3FileKey"),
             "websiteTitle": website_data.get("title"),
-            "gazePoints": all_gaze_points,
-            "participantLink": website_data.get("participantLink")
+            "gazePoints": session_data.get("gaze_points", []),
+            "participantLink": website_data.get("participantLink"),
+            "sessionId": session_id,
+            "participantName": session_data.get("name")
         }
     except Exception as e:
-        print(f"Error getting heatmap data: {str(e)}")
+        print(f"Error getting session gazepoints data: {str(e)}")
         return None

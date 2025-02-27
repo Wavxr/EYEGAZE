@@ -8,33 +8,38 @@ import requests
 import io
 from firebase_admin import firestore
 from ..services.aws_service import upload_to_s3, download_from_s3
-from ..services.firebase_service import db
+from ..services.firebase_service import db, get_session_gazepoints_data
 
 def get_website_data(website_id, session_id=None):
-    print(f"Fetching website data for ID: {website_id}")
+    print(f"Fetching website data for ID: {website_id}, Session ID: {session_id}")
     try:
-        heatmap_data = get_website_heatmap_data(website_id)
-        if not heatmap_data:
-            print("Website not found")
+        if session_id:
+            data = get_session_gazepoints_data(website_id, session_id)
+            
+        if not data:
+            print("Data not found")
             return None
             
         return {
-            "image_key": heatmap_data["imageUrl"],
-            "gaze_points": heatmap_data["gazePoints"]
+            "image_key": data["imageUrl"],
+            "gaze_points": data["gazePoints"]
         }
     except Exception as e:
         print(f"Error fetching website data: {str(e)}")
         return None
 
-def generate_heatmap(website_id, session_id=None):
+def generate_heatmap(website_id, session_id):
     print("Starting heatmap generation process...")
+    if not session_id:
+        print("Session ID is required")
+        return False
     
-    # Get website data
-    website_data = get_website_data(website_id)
+    # Get website data with specific session
+    website_data = get_website_data(website_id, session_id)
     if not website_data:
         print("Failed to get website data")
         return False
-    
+        
     print("Downloading website image from S3...")
     # Download image from S3
     image_data = download_from_s3(website_data["image_key"])
@@ -94,9 +99,9 @@ def generate_heatmap(website_id, session_id=None):
     temp_path = f"temp_heatmap_{website_id}.jpg"
     cv2.imwrite(temp_path, cv2.cvtColor(result.astype(np.uint8), cv2.COLOR_RGB2BGR))
     
-    # Upload to S3
+    # Upload to S3 with session-specific path
     print("Uploading heatmap to S3...")
-    s3_key = f"heatmaps/{website_id}_heatmap.jpg"
+    s3_key = f"heatmaps/{website_id}/session_{session_id}_heatmap.jpg"
     try:
         # Read file as binary
         with open(temp_path, 'rb') as f:
@@ -109,6 +114,14 @@ def generate_heatmap(website_id, session_id=None):
             print("Upload to S3 failed")
             return False
             
+        # Update session document with its heatmap URL
+        session_ref = db.collection('sessions').document(session_id)
+        session_ref.update({
+            "heatmapUrl": s3_key
+        })
+        
+        print("Process completed successfully!")
+        return True
     except Exception as e:
         print(f"Error during upload process: {e}")
         return False
