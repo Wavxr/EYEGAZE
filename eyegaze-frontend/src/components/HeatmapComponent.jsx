@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-const HeatmapComponent = ({ websiteId, thumbnail = false, onClick }) => {
+const HeatmapComponent = ({ websiteId, sessionId = null, thumbnail = false, onClick }) => {
   const [heatmapData, setHeatmapData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,29 +10,36 @@ const HeatmapComponent = ({ websiteId, thumbnail = false, onClick }) => {
   useEffect(() => {
     const fetchHeatmapData = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/website-gaze-data/${websiteId}`);
+        // Fetch gaze data with optional session ID
+        const endpoint = sessionId 
+          ? `http://localhost:8000/website-gaze-data/${websiteId}?session_id=${sessionId}`
+          : `http://localhost:8000/website-gaze-data/${websiteId}`;
+
+        const response = await fetch(endpoint);
         if (!response.ok) {
           throw new Error('Failed to fetch heatmap data');
         }
         const data = await response.json();
         setHeatmapData(data);
         
-        // Try to get heatmap image, fallback to original image
-        try {
-          const heatmapResponse = await fetch(`http://localhost:8000/get-heatmap/${websiteId}`);
-          if (heatmapResponse.ok) {
-            const blob = await heatmapResponse.blob();
-            setImageUrl(URL.createObjectURL(blob));
-          } else {
-            // If heatmap not available, use original image
-            setImageUrl(`http://localhost:8000/get-image/${data.imageUrl}`);
+        // If no heatmap is generated yet, just show the original image
+        setImageUrl(`http://localhost:8000/get-image/${data.imageUrl}`);
+
+        // Only try to get heatmap if we have a session ID
+        if (sessionId) {
+          try {
+            const heatmapResponse = await fetch(`http://localhost:8000/get-heatmap/${websiteId}/${sessionId}`);
+            if (heatmapResponse.ok) {
+              const blob = await heatmapResponse.blob();
+              setImageUrl(URL.createObjectURL(blob));
+            }
+          } catch (imgError) {
+            console.error('Error loading session heatmap:', imgError);
           }
-        } catch (imgError) {
-          console.error('Error loading heatmap:', imgError);
-          setImageUrl(`http://localhost:8000/get-image/${data.imageUrl}`);
         }
       } catch (err) {
         setError(err.message);
+        console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
       }
@@ -40,13 +47,12 @@ const HeatmapComponent = ({ websiteId, thumbnail = false, onClick }) => {
 
     fetchHeatmapData();
     
-    // Cleanup function to revoke object URL
     return () => {
       if (imageUrl && imageUrl.startsWith('blob:')) {
         URL.revokeObjectURL(imageUrl);
       }
     };
-  }, [websiteId]);
+  }, [websiteId, sessionId]);
 
   if (loading) {
     return (

@@ -58,8 +58,10 @@ const App = () => {
             <Route index element={<Overview />} />
             <Route path="overview" element={<Overview />} />
             <Route path="website-testing" element={<WebsiteTesting />} />
+            {/* Remove duplicate routes and fix heatmap routes */}
             <Route path="heatmaps" element={<Heatmaps />} />
-            <Route path="heatmap/:id" element={<HeatmapDetail />} />
+            <Route path="heatmaps/website/:websiteId" element={<Heatmaps />} />
+            <Route path="heatmap/:websiteId/:sessionId" element={<HeatmapDetail />} />
             <Route path="prescription" element={<Prescription />} />
             <Route path="diagnostic" element={<Diagnostic />} />
             <Route path="help-support" element={<HelpSupport />} />
