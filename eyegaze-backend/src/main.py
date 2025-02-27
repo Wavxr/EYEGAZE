@@ -2,9 +2,9 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .controllers.image_upload_controller import router as image_upload_router
-from .controllers.image_serve_controller import router as image_serve_router
-from .controllers.gaze_data_controller import router as gaze_data_router
+from .controllers.image_controller import router as image_router
+from .controllers.heatmap_controller import router as heatmap_router
+from .controllers.session_controller import router as session_router
 from .controllers.website_controller import router as website_router
 
 # Load environment variables from .env file
@@ -21,13 +21,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# main.py
-app.include_router(image_upload_router)
-app.include_router(image_serve_router)
-app.include_router(gaze_data_router)
+# Include routers
+app.include_router(image_router)
+app.include_router(heatmap_router)
+app.include_router(session_router)
 app.include_router(website_router)
-
 
 # Root endpoint
 @app.get("/")

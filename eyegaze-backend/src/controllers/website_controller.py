@@ -1,6 +1,6 @@
 # src/controllers/website_controller.py
 from fastapi import APIRouter, HTTPException
-from ..services.firebase_service import save_website_data, get_all_websites
+from ..services.firebase_service import create_website, list_all_websites
 
 router = APIRouter()
 
@@ -20,7 +20,7 @@ async def save_website(data: dict):
             raise HTTPException(status_code=400, detail="Missing required fields")
         
         # Save website data to Firebase
-        website_id = save_website_data(
+        website_id = create_website(
             owner_id=owner_id,
             owner_name=owner_name,
             title=title,
@@ -39,14 +39,8 @@ async def save_website(data: dict):
 
 @router.get("/websites")
 async def get_websites():
-    """
-    Retrieve all websites from Firebase.
-    
-    Returns:
-        list: List of websites with their details, sorted by creation date
-    """
     try:
-        websites = get_all_websites()
+        websites = list_all_websites()
         if not websites:
             return []
         return websites

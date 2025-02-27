@@ -13,36 +13,14 @@ from ..services.firebase_service import db
 def get_website_data(website_id, session_id=None):
     print(f"Fetching website data for ID: {website_id}")
     try:
-        website_doc = db.collection('websites').document(website_id).get()
-        if not website_doc.exists:
+        heatmap_data = get_website_heatmap_data(website_id)
+        if not heatmap_data:
             print("Website not found")
             return None
             
-        website_data = website_doc.to_dict()
-        
-        all_gaze_points = []
-        if session_id:
-            # Get specific session data
-            print(f"Fetching session data for ID: {session_id}")
-            session = db.collection('sessions').document(session_id).get()
-            if session.exists:
-                session_data = session.to_dict()
-                all_gaze_points.extend(session_data.get("gaze_points", []))
-        else:
-            # Get all sessions for this website
-            print("Fetching all sessions data...")
-            sessions = db.collection('sessions')\
-                .where('websiteId', '==', website_id)\
-                .stream()
-                
-            for session in sessions:
-                session_data = session.to_dict()
-                all_gaze_points.extend(session_data.get("gaze_points", []))
-        
-        print(f"Found {len(all_gaze_points)} gaze points")
         return {
-            "image_key": website_data.get("s3FileKey"),
-            "gaze_points": all_gaze_points
+            "image_key": heatmap_data["imageUrl"],
+            "gaze_points": heatmap_data["gazePoints"]
         }
     except Exception as e:
         print(f"Error fetching website data: {str(e)}")

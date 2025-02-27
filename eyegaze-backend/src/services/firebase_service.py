@@ -26,9 +26,10 @@ cred = credentials.Certificate({
 initialize_app(cred)
 db = firestore.client()
 
-def save_website_data(owner_id: str, owner_name: str, title: str, guideline: str, s3_file_key: str, participant_link: str):
+# Website-related functions
+def create_website(owner_id: str, owner_name: str, title: str, guideline: str, s3_file_key: str, participant_link: str):
     """
-    Save website testing data to Firebase.
+    Create a new website entry in Firebase.
     """
     website_data = {
         "ownerId": owner_id,
@@ -44,17 +45,41 @@ def save_website_data(owner_id: str, owner_name: str, title: str, guideline: str
     doc_ref.set(website_data)
     return doc_ref.id
 
-def save_session_participant(website_id: str, participant_data: dict):
+def list_all_websites() -> list:
     """
-    Save participant session data to Firebase as a separate collection.
+    List all websites from Firebase, sorted by creation date.
+    """
+    try:
+        websites = db.collection('websites').stream()
+        websites_list = []
+        
+        for website in websites:
+            website_data = website.to_dict()
+            websites_list.append({
+                "id": website.id,
+                "title": website_data.get("title"),
+                "guideline": website_data.get("guideline"),
+                "ownerName": website_data.get("ownerName"),
+                "createdAt": website_data.get("createdAt")
+            })
+            
+        return sorted(websites_list, key=lambda x: x.get("createdAt", 0), reverse=True)
+    except Exception as e:
+        print(f"Error listing websites: {str(e)}")
+        return []
+
+# Session-related functions
+def create_session(website_id: str, participant_data: dict):
+    """
+    Create a new participant session in Firebase.
     """
     session_data = {
-        "websiteId": website_id,  # Reference to website
+        "websiteId": website_id,
         "name": participant_data.get("name"),
         "feedback": participant_data.get("feedback"),
         "session_start_time": participant_data.get("session_start_time"),
         "session_end_time": participant_data.get("session_end_time"),
-        "gaze_points": participant_data.get("gaze_points", []),  # Store directly in document
+        "gaze_points": participant_data.get("gaze_points", []),
         "createdAt": firestore.SERVER_TIMESTAMP
     }
     
@@ -62,49 +87,40 @@ def save_session_participant(website_id: str, participant_data: dict):
     doc_ref.set(session_data)
     return doc_ref.id
 
-def get_participant_session(website_id: str, session_id: str) -> dict:
+def get_session_details(website_id: str, session_id: str) -> dict:
     """
-    Retrieve participant session data from Firebase.
+    Get detailed information about a specific session.
     """
     try:
-        # Get website document
         website_doc = db.collection('websites').document(website_id).get()
         if not website_doc.exists:
             return None
             
         website_data = website_doc.to_dict()
-        
-        # Get session document
         session_doc = db.collection('sessions').document(session_id).get()
         if not session_doc.exists:
             return None
             
         session_data = session_doc.to_dict()
-            
-        # Combine data
         return {
             **session_data,
             'screenshot_url': website_data.get('s3FileKey'),
             'website_title': website_data.get('title')
         }
-        
     except Exception as e:
-        print(f"Error retrieving session data: {str(e)}")
+        print(f"Error getting session details: {str(e)}")
         return None
 
-def get_website_sessions(website_id: str) -> list:
+def list_website_sessions(website_id: str) -> list:
     """
-    Get all sessions for a website.
+    List all sessions for a specific website.
     """
     try:
-        # Get website document
         website_doc = db.collection('websites').document(website_id).get()
         if not website_doc.exists:
             return []
             
         website_data = website_doc.to_dict()
-        
-        # Query sessions collection for this website
         sessions = db.collection('sessions')\
             .where('websiteId', '==', website_id)\
             .stream()
@@ -123,24 +139,14 @@ def get_website_sessions(website_id: str) -> list:
             })
             
         return sorted(sessions_list, key=lambda x: x.get("createdAt", 0), reverse=True)
-        
     except Exception as e:
-        print(f"Error getting website sessions: {str(e)}")
+        print(f"Error listing sessions: {str(e)}")
         return []
 
-def get_website_gaze_data(website_id: str) -> dict:
+# Heatmap-related functions
+def get_website_heatmap_data(website_id: str) -> dict:
     """
-    Retrieve all gaze data and website information.
-    
-    Args:
-        website_id (str): The website identifier
-    
-    Returns:
-        dict: Website data including:
-            - imageUrl: S3 key for website screenshot
-            - websiteTitle: Website title
-            - gazePoints: Combined gaze points from all sessions
-            - participantLink: Link for new participants
+    Get website data and combined gaze points for heatmap generation.
     """
     try:
         website_doc = db.collection('websites').document(website_id).get()
@@ -163,31 +169,6 @@ def get_website_gaze_data(website_id: str) -> dict:
             "gazePoints": all_gaze_points,
             "participantLink": website_data.get("participantLink")
         }
-        
     except Exception as e:
-        print(f"Error getting gaze data: {str(e)}")
+        print(f"Error getting heatmap data: {str(e)}")
         return None
-
-def get_all_websites() -> list:
-    """
-    Get all websites from Firebase.
-    """
-    try:
-        websites = db.collection('websites').stream()
-        websites_list = []
-        
-        for website in websites:
-            website_data = website.to_dict()
-            websites_list.append({
-                "id": website.id,
-                "title": website_data.get("title"),
-                "guideline": website_data.get("guideline"),
-                "ownerName": website_data.get("ownerName"),
-                "createdAt": website_data.get("createdAt")
-            })
-            
-        return sorted(websites_list, key=lambda x: x.get("createdAt", 0), reverse=True)
-        
-    except Exception as e:
-        print(f"Error getting websites: {str(e)}")
-        return []
