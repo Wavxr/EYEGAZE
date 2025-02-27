@@ -128,7 +128,6 @@ def get_website_sessions(website_id: str) -> list:
         print(f"Error getting website sessions: {str(e)}")
         return []
 
-
 def get_website_gaze_data(website_id: str) -> dict:
     """
     Retrieve all gaze data and website information.
@@ -168,7 +167,7 @@ def get_website_gaze_data(website_id: str) -> dict:
     except Exception as e:
         print(f"Error getting gaze data: {str(e)}")
         return None
-        
+
 def get_all_websites() -> list:
     """
     Get all websites from Firebase.

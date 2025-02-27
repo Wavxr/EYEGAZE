@@ -1,6 +1,6 @@
 # src/controllers/website_controller.py
 from fastapi import APIRouter, HTTPException
-from ..services.firebase_service import save_website_data
+from ..services.firebase_service import save_website_data, get_all_websites
 
 router = APIRouter()
 
@@ -34,5 +34,21 @@ async def save_website(data: dict):
             "website_id": website_id
         }
         
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/websites")
+async def get_websites():
+    """
+    Retrieve all websites from Firebase.
+    
+    Returns:
+        list: List of websites with their details, sorted by creation date
+    """
+    try:
+        websites = get_all_websites()
+        if not websites:
+            return []
+        return websites
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
