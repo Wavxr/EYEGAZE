@@ -60,7 +60,8 @@ def list_all_websites() -> list:
                 "title": website_data.get("title"),
                 "guideline": website_data.get("guideline"),
                 "ownerName": website_data.get("ownerName"),
-                "createdAt": website_data.get("createdAt")
+                "createdAt": website_data.get("createdAt"),
+                "s3FileKey": website_data.get("s3FileKey")  # Added s3FileKey
             })
             
         return sorted(websites_list, key=lambda x: x.get("createdAt", 0), reverse=True)

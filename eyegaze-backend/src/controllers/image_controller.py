@@ -94,13 +94,9 @@ async def get_session_heatmap(website_id: str, session_id: str):
             raise HTTPException(status_code=404, detail="Session not found")
             
         session_data = session_doc.to_dict()
-        print(f"Session data: {session_data}")
         
         # Construct the heatmap URL based on the known pattern
         heatmap_url = f"heatmaps/{website_id}/session_{session_id}_heatmap.jpg"
-        print(f"Constructed heatmap URL: {heatmap_url}")
-        
-        print(f"Attempting to download from S3: {heatmap_url}")
         image_data = download_from_s3(heatmap_url)
         
         if not image_data:
@@ -123,6 +119,7 @@ async def get_session_heatmap(website_id: str, session_id: str):
         print(f"Error in get_session_heatmap: {str(e)}")
         print(f"Full error details: {type(e).__name__}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+        
 @router.get("/get-heatmap/{website_id}")
 async def get_website_heatmap(website_id: str):
     """

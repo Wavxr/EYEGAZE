@@ -1,9 +1,62 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { FiCopy, FiCheck } from "react-icons/fi";
+
+const CopyLinkButton = ({ link }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  return (
+    <motion.button
+      onClick={handleCopy}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${
+        copied ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-gray-300 hover:bg-white/10"
+      } transition-all duration-300`}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      {copied ? (
+        <>
+          <FiCheck className="w-4 h-4" />
+          <span>Copied!</span>
+        </>
+      ) : (
+        <>
+          <FiCopy className="w-4 h-4" />
+          <span>Copy Link</span>
+        </>
+      )}
+    </motion.button>
+  );
+};
 
 const Overview = () => {
   const navigate = useNavigate();
+  const [websites, setWebsites] = useState([]);
+
+  useEffect(() => {
+    const fetchWebsites = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/websites");
+        const data = await response.json();
+        setWebsites(data);
+      } catch (error) {
+        console.error("Error fetching websites:", error);
+      }
+    };
+
+    fetchWebsites();
+  }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -22,8 +75,8 @@ const Overview = () => {
           </div>
           <div className="bg-white/5 rounded-xl p-4">
             <p className="text-sm text-gray-400">Participation Link</p>
-            <button 
-              onClick={() => navigate('/dashboard/website-testing')}
+            <button
+              onClick={() => navigate("/dashboard/website-testing")}
               className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
             >
               Generate New Link →
@@ -49,8 +102,8 @@ const Overview = () => {
       >
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-semibold text-white">Diagnostic Summary</h3>
-          <button 
-            onClick={() => navigate('/dashboard/diagnostic')}
+          <button
+            onClick={() => navigate("/dashboard/diagnostic")}
             className="px-3 py-1 text-sm bg-emerald-400/20 text-emerald-400 rounded-full hover:bg-emerald-400/30 transition-colors"
           >
             View Details
@@ -71,6 +124,7 @@ const Overview = () => {
           </div>
         </div>
       </motion.div>
+
       {/* Recent Activity */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -103,47 +157,28 @@ const Overview = () => {
         </div>
       </motion.div>
 
-      {/* Eye-Tracking Statistics (replacing Performance Metrics) */}
+      {/* Replace Eye-Tracking Statistics with Websites List */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
         className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl p-6"
       >
-        <h3 className="text-xl font-semibold text-white mb-6">Eye-Tracking Statistics</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white/5 rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">Saccades</p>
-              <span className="text-xs text-emerald-400">↑ 12%</span>
+        <h3 className="text-xl font-semibold text-white mb-6">Your Websites</h3>
+        <div className="space-y-4">
+          {websites.map((website, idx) => (
+            <div key={idx} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white font-medium">{website.title}</p>
+                  <p className="text-sm text-gray-400">{new Date(website.createdAt).toLocaleDateString()}</p>
+                </div>
+                <CopyLinkButton 
+                  link={`http://localhost:5173/participant-session.html?file_key=${website.s3FileKey}&website_id=${website.id}`}
+                />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-white mt-1">479px</p>
-            <p className="text-xs text-gray-400">Average Length</p>
-          </div>
-          <div className="bg-white/5 rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">Fixations</p>
-              <span className="text-xs text-red-400">↓ 5%</span>
-            </div>
-            <p className="text-2xl font-bold text-white mt-1">3.60s</p>
-            <p className="text-xs text-gray-400">Average Duration</p>
-          </div>
-          <div className="bg-white/5 rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">Gaze Path</p>
-              <span className="text-xs text-emerald-400">↑ 8%</span>
-            </div>
-            <p className="text-2xl font-bold text-white mt-1">86%</p>
-            <p className="text-xs text-gray-400">Completion Rate</p>
-          </div>
-          <div className="bg-white/5 rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">Focus Areas</p>
-              <span className="text-xs text-emerald-400">↑ 15%</span>
-            </div>
-            <p className="text-2xl font-bold text-white mt-1">5</p>
-            <p className="text-xs text-gray-400">Key Regions</p>
-          </div>
+          ))}
         </div>
       </motion.div>
 
@@ -156,8 +191,8 @@ const Overview = () => {
       >
         <h3 className="text-xl font-semibold text-white mb-6">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button 
-            onClick={() => navigate('/dashboard/website-testing')}
+          <button
+            onClick={() => navigate("/dashboard/website-testing")}
             className="p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors text-left group"
           >
             <div className="flex items-center justify-between">
@@ -166,8 +201,8 @@ const Overview = () => {
             </div>
             <p className="text-sm text-gray-400 mt-1">Start a new eye tracking test</p>
           </button>
-          <button 
-            onClick={() => navigate('/dashboard/heatmaps')}
+          <button
+            onClick={() => navigate("/dashboard/heatmaps")}
             className="p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors text-left group"
           >
             <div className="flex items-center justify-between">
@@ -176,8 +211,8 @@ const Overview = () => {
             </div>
             <p className="text-sm text-gray-400 mt-1">Analyze gaze patterns</p>
           </button>
-          <button 
-            onClick={() => navigate('/dashboard/diagnostic')}
+          <button
+            onClick={() => navigate("/dashboard/diagnostic")}
             className="p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors text-left group"
           >
             <div className="flex items-center justify-between">
