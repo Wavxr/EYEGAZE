@@ -131,7 +131,17 @@ def get_website_sessions(website_id: str) -> list:
 
 def get_website_gaze_data(website_id: str) -> dict:
     """
-    Get all gaze data for a website including the image URL.
+    Retrieve all gaze data and website information.
+    
+    Args:
+        website_id (str): The website identifier
+    
+    Returns:
+        dict: Website data including:
+            - imageUrl: S3 key for website screenshot
+            - websiteTitle: Website title
+            - gazePoints: Combined gaze points from all sessions
+            - participantLink: Link for new participants
     """
     try:
         website_doc = db.collection('websites').document(website_id).get()
@@ -139,8 +149,6 @@ def get_website_gaze_data(website_id: str) -> dict:
             return None
             
         website_data = website_doc.to_dict()
-        
-        # Get all sessions for this website
         sessions = db.collection('sessions')\
             .where('websiteId', '==', website_id)\
             .stream()
@@ -153,12 +161,14 @@ def get_website_gaze_data(website_id: str) -> dict:
         return {
             "imageUrl": website_data.get("s3FileKey"),
             "websiteTitle": website_data.get("title"),
-            "gazePoints": all_gaze_points
+            "gazePoints": all_gaze_points,
+            "participantLink": website_data.get("participantLink")
         }
         
     except Exception as e:
         print(f"Error getting gaze data: {str(e)}")
         return None
+        
 def get_all_websites() -> list:
     """
     Get all websites from Firebase.
